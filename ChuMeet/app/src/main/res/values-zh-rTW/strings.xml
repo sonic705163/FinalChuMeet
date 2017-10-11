@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChuMeet啾咪</string>
+    <!--APP歡迎頁面、註冊按鈕 -->
+    <string name="txv_1">We are what we do</string>
+    <string name="btLogIn_0">會員登入</string>
+    <!--APP會員登入頁面、外部帳號登入-->
+    <!--APP會員登入頁面、內部帳號登入-->
+    <string name="editEmail">Email</string>
+    <string name="editPassword">Password</string>
+    <string name="btLogIn_1">Log In</string>
+    <string name="btForgotPW">Forgot password?</string>
+    <string name="txv_0">By tapping \"Continue\", you agree to our Terms of Service, Privacy Policy, and Cookie Policy.</string>
+    <!--APP主頁面導覽列-->
+    <string name="navFind">Find</string>
+    <string name="navBrowse">Browse</string>
+    <string name="navGoing">Going</string>
+    <string name="navProfile">Profile</string>
+    <!--內容：navFind上-->
+    <!--內容：navFind下-->
+
+    <!-- TODO: Remove or change this placeholder text -->
+
+    <string name="navMessage">Message</string>
+
+    <string name="msg_InvalidUserOrPassword">請輸入帳號或密碼</string>
+    <string name="msg_InvalidCheckEmail">Email invalid</string>
+    <string name="msg_CheckEmailOK">Email OK!!!</string>
+    <string name="msg_CheckEmailRepeat">Email repeat</string>
+
+    <string name="stLogout">Log out</string>
+
+
+    <!--Json-->
+    <string name="msg_NoNetwork">No network connection available</string>
+    <string name="msg_NoClubsFound">No clubs found</string>
+    <string name="msg_NoActsFound">找不到活動</string>
+    <string name="btEditProfile">Edit Profile</string>
+
+
+    <string name="col_Name">Name</string>
+    <string name="col_Address">Address</string>
+    <string name="editName">姓名</string>
+    <string name="confirm_password">確認密碼</string>
+    <string name="tvEmailCheck">檢查Email是否重複</string>
+    <string name="tvActInsertTab1">先幫活動取個好聽的名字吧！</string>
+    <string name="tvActInsertTab1_Location">舉辦地點在哪兒呢？</string>
+    <string name="tvActIsertTab2_poi">活動分類是？</string>
+    <string name="msg_SignUpInvalidEmail">請輸入Email</string>
+    <string name="msg_SignUpInvalidName">請輸入姓名</string>
+    <string name="msg_SignUpInvalidPassword">請輸入密碼</string>
+    <string name="tvActInsertTab2_time">活動時間設定</string>
+    <string name="tvAct_StartDatePicker">活動舉辦時間</string>
+    <string name="tvAct_EndDatePicker">活動結束時間</string>
+    <string name="tvAct_RegisterEndDatePicker">報名截止時間</string>
+    <string name="tvAct_RegisterStartDatePicker">報名開始時間</string>
+    <string name="ctPoi_1">運動</string>
+    <string name="ctPoi_2">學習</string>
+    <string name="ctPoi_3">餐聚</string>
+    <string name="ctPoi_4">藝文</string>
+    <string name="ctPoi_5">電影</string>
+    <string name="ctPoi_6">電競</string>
+    <string name="ctPoi_7">戶外</string>
+    <string name="ctPoi_8">寵物</string>
+    <string name="ctPoi_9">其他</string>
+    <string name="tvActInsert_content">活動詳細內容</string>
+    <string name="tvActInsert_agreed">啾咪是一個友善熱情的網站，請同意我們的使用條款</string>
+    <string name="tvActInsert_agreed2">我同意</string>
+    <string name="btnPositioning">定位</string>
+    <string name="btSignUp">註冊會員</string>
+    <string name="btSignUp2">註冊</string>
+    <string name="btnNext_actInsert">下一步</string>
+    <string name="btnFinal_createAct">建立你的活動</string>
+    <string name="btnJoinAct">加入本活動</string>
+    <string name="tvActHOT">熱門活動</string>
+    <string name="tvPOI">活動類別</string>
+    <string name="stQRCode">QRCode</string>
+</resources>

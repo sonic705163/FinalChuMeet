@@ -1,0 +1,62 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardView"
+    android:layout_width="160dp"
+    android:layout_height="@dimen/cardHeight"
+
+    android:layout_margin="10dp"
+    card_view:cardCornerRadius="5dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/ivActImg"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/imageHeight"
+                android:scaleType="centerCrop" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="bottom">
+
+
+            <TextView
+                android:id="@+id/tvActName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/holo_orange_dark"
+                android:maxLength="7"
+                android:paddingLeft="6dp"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/textSize"
+                android:textStyle="bold"
+                tools:text="Name" />
+
+            <TextView
+                android:id="@+id/tvActDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/holo_orange_dark"
+                android:paddingLeft="6dp"
+                android:textColor="@android:color/background_light"
+                android:textSize="@dimen/textSize"
+                tools:text="Date" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>
+

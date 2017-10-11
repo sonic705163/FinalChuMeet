@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">ChuMeet</string>
+    <!--APP歡迎頁面、註冊按鈕 -->
+    <string name="btSignUp">SIGN UP</string>
+    <string name="txv_1">We are what we do</string>
+    <string name="btLogIn_0">ALREADY A MEMBER? LOG IN</string>
+    <!--APP會員登入頁面、外部帳號登入-->
+    <!--APP會員登入頁面、內部帳號登入-->
+    <string name="editEmail">Email</string>
+    <string name="editPassword">Password</string>
+    <string name="btLogIn_1">Log In</string>
+    <string name="btForgotPW">Forgot password?</string>
+    <string name="txv_0">By tapping \"Continue\", you agree to our Terms of Service, Privacy Policy, and Cookie Policy.</string>
+    <!--APP主頁面導覽列-->
+    <string name="navFind">Find</string>
+    <string name="navBrowse">Browse</string>
+    <string name="navGoing">Going</string>
+    <string name="navProfile">Profile</string>
+    <!--內容：navFind上-->
+    <!--內容：navFind下-->
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <!--msg-->
+    <string name="navMessage">Message</string>
+    <string name="msg_InvalidUserOrPassword">Email or password invalid</string>
+    <string name="msg_InvalidCheckEmail">Email invalid</string>
+    <string name="msg_CheckEmailOK">Email OK!!!</string>
+    <string name="msg_CheckEmailRepeat">Email repeat</string>
+    <string name="msg_SignUpInvalidEmail">Email invalid</string>
+    <string name="msg_NoCameraApp">No camera app found</string>
+    <string name="msg_SignUpInvalidName">Name invalid</string>
+    <string name="msg_SignUpInvalidPassword">Password invalid</string>
+    <string name="msg_SignUpInvalidConfirmPassword">Password invalid or not confirm </string>
+
+    <string name="stLogout">Log out</string>
+
+
+    <!--Json-->
+    <string name="msg_NoNetwork">No network connection available</string>
+    <string name="msg_NoClubsFound">No clubs found</string>
+    <string name="msg_NoActsFound">No acts found</string>
+    <string name="btEditProfile">Edit Profile</string>
+
+
+    <string name="col_Name">Name</string>
+    <string name="col_Address">Address</string>
+    <string name="editName">Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="tvEmailCheck">Check Email</string>
+    <string name="btSignUp2">Sign Up</string>
+    <string name="menu_toolbar_insert">insert</string>
+    <string name="action_settings">Settings</string>
+    <string name="tvActInsertTab1">Give your Chumeet a name:</string>
+    <string name="edActInsert_name">name</string>
+    <string name="tvActInsertTab1_Location">Location</string>
+    <string name="tvActIsertTab2_poi">category</string>
+    <string name="ivTakepicture">TakePicture</string>
+    <string name="icChuMeet">ChuMeet</string>
+    <string name="btnPositioning">positioning</string>
+    <string name="btnNext_actInsert">Next</string>
+    <string name="btnFinal_createAct">create</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="stQRCode">QRCode</string>
+
+
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navFind"
+        android:icon="@mipmap/ic_find"
+        android:title="@string/navFind" />
+    <!--<item-->
+        <!--android:id="@+id/navBrowse"-->
+        <!--android:icon="@mipmap/ic_browse"-->
+        <!--android:title="@string/navBrowse" />-->
+    <item
+        android:id="@+id/navGoing"
+        android:icon="@mipmap/ic_going"
+        android:title="@string/navGoing" />
+    <item
+        android:id="@+id/navMessage"
+        android:icon="@mipmap/ic_message"
+        android:title="@string/navMessage" />
+    <item
+        android:id="@+id/navProfile"
+        android:icon="@mipmap/ic_profile"
+        android:title="@string/navProfile" />
+</menu>
