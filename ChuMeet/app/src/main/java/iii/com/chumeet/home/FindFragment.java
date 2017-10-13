@@ -144,7 +144,7 @@ public class FindFragment extends Fragment {
 
         intent.putExtras(bundle);
         startActivity(intent);
-
+        getActivity().finish();
     }
 
 
@@ -172,7 +172,7 @@ public class FindFragment extends Fragment {
                     case R.id.action_insert_act:
                         Intent intent = new Intent(getActivity(),  ActInsert_1Activity.class);
                         startActivity(intent);
-
+                        getActivity().finish();
                         break;
                 }
                 return true;
@@ -253,7 +253,7 @@ public class FindFragment extends Fragment {
             new GetImageTask(url, id, imageSize, myViewHolder.ivActImg).execute();
 
             myViewHolder.tvActName.setText(actVO.getActName());
-            myViewHolder.tvActDate.setText(actVO.getActStartDate());
+            myViewHolder.tvActDate.setText(actVO.getActStartDate().toString());
             myViewHolder.ivActImg.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view){
@@ -263,6 +263,7 @@ public class FindFragment extends Fragment {
                     bundle.putSerializable("actVO", actVO);
                     intent.putExtras(bundle);
                     startActivity(intent);
+                    getActivity().finish();
                 }
             });
         }
@@ -279,4 +280,5 @@ public class FindFragment extends Fragment {
             }
         }
     }
+
 }

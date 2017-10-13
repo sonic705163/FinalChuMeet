@@ -4,11 +4,17 @@
          xmlns:tools="http://schemas.android.com/tools"
          tools:context=".act.ActDetailActivity">
 
+
         <item
-            android:id="@+id/action_QRCode"
+            android:id="@+id/action_QRCode_host"
             android:orderInCategory="100"
             android:title="@string/stQRCode"
             app:showAsAction="never" />
 
+        <item
+            android:id="@+id/action_actUpdate"
+            android:orderInCategory="100"
+            android:title="@string/stActUpdate"
+            app:showAsAction="never" />
 
 </menu>

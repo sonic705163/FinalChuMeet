@@ -49,6 +49,7 @@
     <string name="msg_SignUpInvalidEmail">請輸入Email</string>
     <string name="msg_SignUpInvalidName">請輸入姓名</string>
     <string name="msg_SignUpInvalidPassword">請輸入密碼</string>
+    <string name="msg_SignUpInvalidConfirmPassword">請再輸入一次密碼</string>
     <string name="tvActInsertTab2_time">活動時間設定</string>
     <string name="tvAct_StartDatePicker">活動舉辦時間</string>
     <string name="tvAct_EndDatePicker">活動結束時間</string>
@@ -74,5 +75,8 @@
     <string name="btnJoinAct">加入本活動</string>
     <string name="tvActHOT">熱門活動</string>
     <string name="tvPOI">活動類別</string>
-    <string name="stQRCode">QRCode</string>
+    <string name="stQRCode">活動簽到</string>
+    <string name="edActNameUpdate">活動名稱</string>
+    <string name="edActAdrUpdate">活動地址</string>
+    <string name="stActUpdate">變更活動內容</string>
 </resources>

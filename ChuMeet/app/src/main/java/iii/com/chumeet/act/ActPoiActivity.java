@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import iii.com.chumeet.R;
 import iii.com.chumeet.Task.GetImageTask;
 import iii.com.chumeet.Task.MyTask;
 import iii.com.chumeet.VO.ActVO;
+import iii.com.chumeet.home.HomeActivity;
 
 import static iii.com.chumeet.Common.networkConnected;
 import static iii.com.chumeet.Common.showToast;
@@ -133,7 +135,7 @@ public class ActPoiActivity extends AppCompatActivity {
             new GetImageTask(url, actID, imageSize, myViewHolder.ivActImg).execute();
 
             myViewHolder.tvActName.setText(actVO.getActName());
-            myViewHolder.tvActDate.setText(actVO.getActStartDate());
+            myViewHolder.tvActDate.setText(actVO.getActStartDate().toString());
             myViewHolder.ivActImg.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view){
@@ -143,6 +145,7 @@ public class ActPoiActivity extends AppCompatActivity {
                     bundle.putSerializable("actVO", actVO);
                     intent.putExtras(bundle);
                     startActivity(intent);
+                    finish();
                 }
             });
         }
@@ -158,5 +161,17 @@ public class ActPoiActivity extends AppCompatActivity {
                 tvActDate = (TextView) itemView.findViewById(R.id.tvActDate);
             }
         }
+    }
+    //監聽返回鍵點擊事件
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+
+        }
+        return true;
     }
 }

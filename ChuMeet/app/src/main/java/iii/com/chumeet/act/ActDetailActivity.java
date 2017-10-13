@@ -71,6 +71,8 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_act_detail);
 
+        checkPermission();                                     //檢查若尚未授權，則向使用者要求定位權限
+
         toolbar = (Toolbar) findViewById(R.id.toolbar_QRCode);
         actImg = (ImageView) findViewById(R.id.ivActDetImg);
         actName = (TextView) findViewById(R.id.tvActDetName);
@@ -210,24 +212,237 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu_detail, menu);
-        return super.onCreateOptionsMenu(menu);
+    protected void onStart() {
+        super.onStart();
 
+        //先確定一下你有沒有加入過
+        checkJoined();
+
+//字太長修一下
+
+        StringBuilder sb = new StringBuilder(actVO.getActName());
+        sb.setLength(14);
+        toolbar.setTitle(sb);
+        toolbar.inflateMenu(R.menu.toolbar_menu_detail);
+        setSupportActionBar(toolbar);
+
+
+        showResults();
+
+    }
+
+
+
+
+
+
+
+    private void checkJoined() {
+        SharedPreferences pref = getSharedPreferences(Common.PREF_FILE, MODE_PRIVATE);
+        Integer memID = pref.getInt("memID", 0);
+
+        bundle = this.getIntent().getExtras();
+        actVO =  (ActVO) bundle.getSerializable("actVO");
+
+        ActMemVO actMemVO ;
+
+
+        if (networkConnected(this)) {
+            String url = Common.URL + "ActServletAndroid";
+
+            try{
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("action", "getActMem");          //先找ActMem有沒有資料
+                jsonObject.addProperty("id", actVO.getActID());
+                jsonObject.addProperty("memId", memID);
+                String jsonOut = jsonObject.toString();
+
+                String jsonIn = new MyTask(url, jsonOut).execute().get();
+
+                Gson gson = new Gson();
+                actMemVO = gson.fromJson(jsonIn, ActMemVO.class);
+
+                if(actMemVO != null){
+                    status = actMemVO.getActMemStatus();        //有資料時取actMemStatus//
+                    switch (status){                            //1=hoder, 2=joined member 3=invited 4=banned 5=tracking 6=leave
+                        case 1:
+                            btnJoin.setText("解散活動");
+                            break;
+                        case 2:
+                            btnJoin.setText("退出活動");
+                            break;
+                        case 3:
+                            btnJoin.setText("你不可能在這");
+                            break;
+                        case 4:
+                            btnJoin.setText("你不可能進得來");
+                            break;
+                        case 5:
+                            btnJoin.setText("加入活動");
+                            break;
+                        case 6:
+                            btnJoin.setText("加入活動");
+                            break;
+
+                    }
+                }
+
+            }catch (Exception e){
+                Log.e(TAG, e.toString());
+            }
+            actMemFmStart();
+        }else{
+            showToast(this, R.string.msg_NoNetwork);
+        }
+
+    }
+
+    private void actMemFmStart(){
+        bundle.putInt("ActID", actVO.getActID());
+        ActMemFragment fragment = new ActMemFragment();
+
+        fragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.fmActDetail, fragment).commit();
+    }
+
+
+
+
+
+    private void showResults() {
+        String url = Common.URL + "ActServletAndroid";
+
+        if(networkConnected(this)){
+            try{
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("action", "getActHost");
+                jsonObject.addProperty("id", actVO.getActID());
+                jsonObject.addProperty("actMemStatus", 1);
+
+                String jsonOut = jsonObject.toString();
+                String jsonIn = new MyTask(url, jsonOut).execute().get();
+
+                Gson gson = new Gson();
+                Mem_ActMemVO mem_actMemVO = gson.fromJson(jsonIn, Mem_ActMemVO.class);
+
+                int imageSize = getResources().getDisplayMetrics().widthPixels / 4;
+
+                new GetImageTask(url, actVO.getActID(), imageSize, actImg).execute().get();
+
+                actName.setText(actVO.getActName());
+                actCont.setText(actVO.getActContent());
+                actLoc.setText(actVO.getActAdr());
+                actHost.setText(mem_actMemVO.getMemName());
+                String startDate = actVO.getActStartDate().toString();
+                String endDate = actVO.getActEndDate().toString();
+
+                actDate.setText("Start:  " + startDate + "\nEnd:    " + endDate);
+
+            }catch (Exception e){
+                Log.e(TAG, e.toString());
+            }
+        }else{
+            showToast(this, R.string.msg_NoNetwork);
+        }
+    }
+
+
+
+
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        this.map = map;
+
+        map.setTrafficEnabled(true);
+
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        map.setMyLocationEnabled(true);
+        map.getUiSettings().setZoomControlsEnabled(true);
+        if(actVO == null){
+            showToast(this, R.string.msg_NoActsFound);
+        }else{
+            showMap(actVO);
+        }
+    }
+
+    private void showMap(ActVO actVO){
+        LatLng position = new LatLng(actVO.getActLat(), actVO.getActLong());
+        String snippet = getString(R.string.col_Name) + ":" + actVO.getActName() + "\n" +
+                getString(R.string.col_Address) + ":" + actVO.getActAdr();
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(position)
+                .zoom(15)
+                .build();
+        CameraUpdate cameraUpdate = CameraUpdateFactory
+                .newCameraPosition(cameraPosition);
+        map.animateCamera(cameraUpdate);
+
+        map.addMarker(new MarkerOptions()
+                .position(position)
+                .title(actVO.getActName())
+                .snippet(snippet));
+
+//        map.setInfoWindowAdapter(new MyInfoWindowAdapter(this, actVO));
+
+    }
+
+    //檢查若尚未授權, 則向使用者要求定位權限
+    private void checkPermission() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    }, 200);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(status == null){
+            return super.onCreateOptionsMenu(menu);
+        }else if (status==1){
+            getMenuInflater().inflate(R.menu.toolbar_menu_detail_host, menu);
+        }else if (status==2){
+            getMenuInflater().inflate(R.menu.toolbar_menu_detail, menu);
+        }
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.action_QRCode:
-                if(status==1) {                            //1=hoder, 2=joined member
-                    onGenerateQrCodeClick();
-                }else if(status==2){
-                    onScanQrCodeClick();
-                }
+                onScanQrCodeClick();
                 break;
+
+            case R.id.action_QRCode_host:
+                onGenerateQrCodeClick();
+                break;
+
+            case R.id.action_actUpdate:
+                Intent intent = new Intent(this, ActUpdateActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                finish();
+                break;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     public void onScanQrCodeClick() {
@@ -294,187 +509,6 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
             Log.e(TAG, e.toString());
         }
     }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        //先確定一下你有沒有加入過
-        checkJoined();
-
-//字太長修一下
-
-        StringBuilder sb = new StringBuilder(actVO.getActName());
-        sb.setLength(14);
-        toolbar.setTitle(sb);
-        toolbar.inflateMenu(R.menu.toolbar_menu_detail);
-        setSupportActionBar(toolbar);
-
-
-        showResults();
-
-    }
-
-
-    private void checkJoined() {
-        SharedPreferences pref = getSharedPreferences(Common.PREF_FILE, MODE_PRIVATE);
-        Integer memID = pref.getInt("memID", 0);
-
-        bundle = this.getIntent().getExtras();
-        actVO =  (ActVO) bundle.getSerializable("actVO");
-
-        ActMemVO actMemVO ;
-
-
-        if (networkConnected(this)) {
-            String url = Common.URL + "ActServletAndroid";
-
-            try{
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("action", "getActMem");          //先找ActMem有沒有資料
-                jsonObject.addProperty("id", actVO.getActID());
-                jsonObject.addProperty("memId", memID);
-                String jsonOut = jsonObject.toString();
-
-                String jsonIn = new MyTask(url, jsonOut).execute().get();
-
-                Gson gson = new Gson();
-                actMemVO = gson.fromJson(jsonIn, ActMemVO.class);
-
-                if(actMemVO != null){
-                    status = actMemVO.getActMemStatus();        //有資料時取actMemStatus//
-                    switch (status){                            //1=hoder, 2=joined member 3=invited 4=banned 5=tracking 6=leave
-                        case 1:
-                            btnJoin.setText("解散活動");
-                            break;
-                        case 2:
-                            btnJoin.setText("退出活動");
-                            break;
-                        case 3:
-                            btnJoin.setText("你不可能在這");
-                            break;
-                        case 4:
-                            btnJoin.setText("你不可能進得來");
-                            break;
-                        case 5:
-                            btnJoin.setText("加入活動");
-                            break;
-                        case 6:
-                            btnJoin.setText("加入活動");
-                            break;
-
-                    }
-                }
-            }catch (Exception e){
-                Log.e(TAG, e.toString());
-            }
-            actMemFmStart();
-        }else{
-            showToast(this, R.string.msg_NoNetwork);
-        }
-
-    }
-
-    private void actMemFmStart(){
-        bundle.putInt("ActID", actVO.getActID());
-        ActMemFragment fragment = new ActMemFragment();
-
-        fragment.setArguments(bundle);
-
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.fmActDetail, fragment).commit();
-    }
-
-
-
-
-
-    private void showResults() {
-        String url = Common.URL + "ActServletAndroid";
-
-        if(networkConnected(this)){
-            try{
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("action", "getActHost");
-                jsonObject.addProperty("id", actVO.getActID());
-                jsonObject.addProperty("actMemStatus", 1);
-
-                String jsonOut = jsonObject.toString();
-                String jsonIn = new MyTask(url, jsonOut).execute().get();
-
-                Gson gson = new Gson();
-                Mem_ActMemVO mem_actMemVO = gson.fromJson(jsonIn, Mem_ActMemVO.class);
-
-                int imageSize = getResources().getDisplayMetrics().widthPixels / 4;
-
-                new GetImageTask(url, actVO.getActID(), imageSize, actImg).execute().get();
-
-                actName.setText(actVO.getActName());
-                actCont.setText(actVO.getActContent());
-                actLoc.setText(actVO.getActLocName());
-                actHost.setText(mem_actMemVO.getMemName());
-                String startDate = actVO.getActStartDate();
-                String endDate = actVO.getActEndDate();
-
-                actDate.setText("Start:  " + startDate + "\nEnd:    " + endDate);
-
-            }catch (Exception e){
-                Log.e(TAG, e.toString());
-            }
-        }else{
-            showToast(this, R.string.msg_NoNetwork);
-        }
-    }
-
-
-
-
-
-    @Override
-    public void onMapReady(GoogleMap map) {
-        this.map = map;
-
-        map.setTrafficEnabled(true);
-
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            return;
-        }
-        map.setMyLocationEnabled(true);
-        map.getUiSettings().setZoomControlsEnabled(true);
-        if(actVO == null){
-            showToast(this, R.string.msg_NoActsFound);
-        }else{
-            showMap(actVO);
-        }
-    }
-
-    private void showMap(ActVO actVO){
-        LatLng position = new LatLng(actVO.getActLat(), actVO.getActLong());
-        String snippet = getString(R.string.col_Name) + ":" + actVO.getActName() + "\n" +
-                getString(R.string.col_Address) + ":" + actVO.getActAdr();
-
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(position)
-                .zoom(9)
-                .build();
-        CameraUpdate cameraUpdate = CameraUpdateFactory
-                .newCameraPosition(cameraPosition);
-        map.animateCamera(cameraUpdate);
-
-        map.addMarker(new MarkerOptions()
-                .position(position)
-                .title(actVO.getActName())
-                .snippet(snippet));
-
-//        map.setInfoWindowAdapter(new MyInfoWindowAdapter(this, actVO));
-
-    }
-
-
     //監聽返回鍵點擊事件
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event){

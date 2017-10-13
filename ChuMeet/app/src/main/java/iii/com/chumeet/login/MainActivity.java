@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SignUpActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+
     }
 
             //切換到會員登入頁面
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LogInActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+
     }
 
 
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             if( isUserValid(email, password) ){
                 setResult(RESULT_OK);
                 startActivity(new Intent(this, HomeActivity.class));
+                finish();
             }
         }
     }

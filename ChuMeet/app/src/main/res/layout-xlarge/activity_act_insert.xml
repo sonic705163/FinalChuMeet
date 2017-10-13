@@ -263,7 +263,7 @@
                         tools:layout_editor_absoluteY="126dp" />
 
                     <TextView
-                        android:id="@+id/tvDatePicker_ActEnd"
+                        android:id="@+id/btnDatePicker_ActEnd"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tvAct_EndDatePicker"

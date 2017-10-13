@@ -150,7 +150,7 @@ public class GoingFragment extends Fragment {
             new GetImageTask(url, id, imageSize, myViewHolder.ivActImg).execute();
 
             myViewHolder.tvActName.setText(actVO.getActName());
-            myViewHolder.tvActDate.setText(actVO.getActStartDate());
+            myViewHolder.tvActDate.setText(actVO.getActStartDate().toString());
             myViewHolder.ivActImg.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view){

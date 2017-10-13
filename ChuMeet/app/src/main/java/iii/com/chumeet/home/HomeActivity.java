@@ -31,30 +31,10 @@ public class HomeActivity extends AppCompatActivity{
 //Fragment創造與交換
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-//            FindFragment findFragment = new FindFragment();
-//            BrowseFragment browseFragment = new BrowseFragment();
-//            GoingFragment goingFragment = new GoingFragment();
-//            MessageFragment messageFragment = new MessageFragment();
-//            ProfileFragment profileFragment = new ProfileFragment();
-//
-//            transaction.add(R.id.content, findFragment, "Tab1");
-//            transaction.add(R.id.content, browseFragment, "Tab2");
-//            transaction.add(R.id.content, goingFragment, "Tab3");
-//            transaction.add(R.id.content, messageFragment, "Tab4");
-//            transaction.add(R.id.content, profileFragment, "Tab5");
-//            transaction.hide(browseFragment);
-//            transaction.hide(goingFragment);
-//            transaction.hide(messageFragment);
-//            transaction.hide(profileFragment);
-//            transaction.commit();
-
             switch (item.getItemId()){
                 case R.id.navFind:
                     transaction.replace(R.id.content, new FindFragment()).commit();
                     return true;
-//                case R.id.navBrowse:
-//                    transaction.replace(R.id.content, new BrowseFragment()).commit();
-//                    return true;
                 case R.id.navGoing:
                     transaction.replace(R.id.content, new GoingFragment()).commit();
                     return true;
@@ -73,6 +53,7 @@ public class HomeActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_home);
         setSupportActionBar(toolbar);

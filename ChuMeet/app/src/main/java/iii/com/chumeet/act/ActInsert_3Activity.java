@@ -29,14 +29,13 @@ import iii.com.chumeet.VO.ActVO;
 
 import static iii.com.chumeet.Common.networkConnected;
 import static iii.com.chumeet.Common.showToast;
-import static java.lang.Integer.valueOf;
 
 public class ActInsert_3Activity extends AppCompatActivity {
     private static final String TAG = "ActInsert_3Activity";
     private CheckBox cbIAgreed;
     private EditText etContent;
     private Button btNext;
-    private String actIdStr;
+    private Integer actId;
     private byte[] image;
 
     @Override
@@ -111,37 +110,41 @@ public class ActInsert_3Activity extends AppCompatActivity {
                 actVO.setActLocName(locationName);
                 actVO.setActLat(lat);
                 actVO.setActLong(lng);
-                actVO.setActStartDate(Timestamp.valueOf(actStart + ":" + 00));
-                actVO.setActEndDate(Timestamp.valueOf(actEnd + ":" + 00));
-                actVO.setActSignStartDate(Timestamp.valueOf(actStart + ":" + 00));
-                actVO.setActSignEndDate(Timestamp.valueOf(actStart + ":" + 00));
+                actVO.setActStartDate(Timestamp.valueOf(actStart + ":00"));
+                actVO.setActEndDate(Timestamp.valueOf(actEnd + ":00"));
+                actVO.setActSignStartDate(Timestamp.valueOf(actStart + ":00"));
+                actVO.setActSignEndDate(Timestamp.valueOf(actEnd + ":00"));
 
 //主辦人和創建時間
                 SharedPreferences pref = getSharedPreferences(Common.PREF_FILE, MODE_PRIVATE);
                 Integer memID = pref.getInt("memID", 0);
 
 
-                Calendar calendar = Calendar.getInstance();
-                int mYear = calendar.get(Calendar.YEAR);
-                int mMonth = calendar.get(Calendar.MONTH);
-                int mDay = calendar.get(Calendar.DAY_OF_MONTH);
-                int mHour = calendar.get(Calendar.HOUR_OF_DAY);
-                int mMinute = calendar.get(Calendar.MINUTE);
-                int mSecond = calendar.get(Calendar.SECOND);
-                String today = String.valueOf(mYear + "-" + (mMonth + 1) + "-" + mDay + " " + mHour + ":" + mMinute + ":" + mSecond );
+                Timestamp todaty = new Timestamp(Calendar.getInstance().getTimeInMillis());
 
                 actVO.setMemID(memID);
-                actVO.setActCreateDate(Timestamp.valueOf(today));
+                actVO.setActCreateDate(todaty);
 //以下預設
+                actVO.setACTTYPE(1);
                 actVO.setActStatus(1);
                 actVO.setActPriID(1);
-                actVO.setActTimeTypeID(0);
-                actVO.setActTimeTypeCnt("");
+                actVO.setActTimeTypeID(1);
+                actVO.setActTimeTypeCnt(null);
                 actVO.setActMemMax(99);
                 actVO.setActMemMin(1);
                 actVO.setActIsHot(0);
-                actVO.setActContent(etContent.getText().toString());
+
+                String content = etContent.getText().toString();
+
+                actVO.setActContent(content);
                 actVO.setActPost(999);
+                actVO.setACTUID(null);
+                actVO.setACTSHOWUNIT(null);
+                actVO.setACTMASTERUNIT(null);
+                actVO.setACTWEBSALES(null);
+                actVO.setACTSOURCEWEBNAME(null);
+                actVO.setACTONSALE(null);
+                actVO.setACTPRICE(null);
                 actVO.setActAdr(locationName);
 
                 Bitmap srcPicture = BitmapFactory.decodeResource(getResources(), R.drawable.p);
@@ -150,13 +153,14 @@ public class ActInsert_3Activity extends AppCompatActivity {
 
                 if(isInsertValid(actVO)){
 
-                    actVO.setActID(valueOf(actIdStr));
+                    actVO.setActID(actId);
 
                     Intent intent = new Intent(ActInsert_3Activity.this, ActDetailActivity.class);
                     Bundle bundle2 = new Bundle();
                     bundle2.putSerializable("actVO", actVO);
                     intent.putExtras(bundle2);
                     startActivity(intent);
+                    finish();
 
                 }else {
                     Toast.makeText(ActInsert_3Activity.this, "新增活動失敗", Toast.LENGTH_SHORT).show();
@@ -167,7 +171,6 @@ public class ActInsert_3Activity extends AppCompatActivity {
     }
 
     private boolean isInsertValid(ActVO actVO){
-        boolean answer = false;
 
         if(networkConnected(ActInsert_3Activity.this)){
             String url = Common.URL + "ActServletAndroid";
@@ -177,16 +180,15 @@ public class ActInsert_3Activity extends AppCompatActivity {
 
                 String jsonIn = new InsertTask(url, "insert", actVO, image).execute().get();
 
-                actIdStr = gson.fromJson(jsonIn, String.class);
+                actId = gson.fromJson(jsonIn, Integer.class);
 
             } catch (Exception e){
                 Log.e(TAG, e.toString());
             }
-            answer = !actIdStr.equals("");
         }else{
             showToast(this, R.string.msg_NoNetwork);
         }
-        return answer;
+        return actId != null;
     }
 
 

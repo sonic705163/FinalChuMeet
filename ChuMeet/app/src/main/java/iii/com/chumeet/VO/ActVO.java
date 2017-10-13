@@ -2,10 +2,10 @@ package iii.com.chumeet.VO;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 
 public class ActVO implements Serializable {
 
+    private Integer ACTTYPE;
     private Integer actID;
     private Integer memID;
     private Timestamp actCreateDate;
@@ -28,7 +28,62 @@ public class ActVO implements Serializable {
     private Integer actPost;
     private String actLocName;
     private String actAdr;
+    private String ACTUID;
+    private String ACTSHOWUNIT;
+    private String ACTMASTERUNIT;
+    private String ACTWEBSALES;
+    private String ACTSOURCEWEBNAME;
+    private String ACTONSALE;
+    private String ACTPRICE;
 
+    public Integer getACTTYPE() {
+        return ACTTYPE;
+    }
+    public void setACTTYPE(Integer aCTTYPE) {
+        ACTTYPE = aCTTYPE;
+    }
+    public String getACTUID() {
+        return ACTUID;
+    }
+    public void setACTUID(String aCTUID) {
+        ACTUID = aCTUID;
+    }
+    public String getACTSHOWUNIT() {
+        return ACTSHOWUNIT;
+    }
+    public void setACTSHOWUNIT(String aCTSHOWUNIT) {
+        ACTSHOWUNIT = aCTSHOWUNIT;
+    }
+    public String getACTMASTERUNIT() {
+        return ACTMASTERUNIT;
+    }
+    public void setACTMASTERUNIT(String aCTMASTERUNIT) {
+        ACTMASTERUNIT = aCTMASTERUNIT;
+    }
+    public String getACTWEBSALES() {
+        return ACTWEBSALES;
+    }
+    public void setACTWEBSALES(String aCTWEBSALES) {
+        ACTWEBSALES = aCTWEBSALES;
+    }
+    public String getACTSOURCEWEBNAME() {
+        return ACTSOURCEWEBNAME;
+    }
+    public void setACTSOURCEWEBNAME(String aCTSOURCEWEBNAME) {
+        ACTSOURCEWEBNAME = aCTSOURCEWEBNAME;
+    }
+    public String getACTONSALE() {
+        return ACTONSALE;
+    }
+    public void setACTONSALE(String aCTONSALE) {
+        ACTONSALE = aCTONSALE;
+    }
+    public String getACTPRICE() {
+        return ACTPRICE;
+    }
+    public void setACTPRICE(String aCTPRICE) {
+        ACTPRICE = aCTPRICE;
+    }
 
     public Integer getActID() {
         return actID;
@@ -42,9 +97,8 @@ public class ActVO implements Serializable {
     public void setMemID(Integer memID) {
         this.memID = memID;
     }
-    public String getActCreateDate() {
-        String date = new SimpleDateFormat("yyyy-MM-dd HH:mm a").format(actCreateDate);
-        return date;
+    public Timestamp getActCreateDate() {
+        return actCreateDate;
     }
     public void setActCreateDate(Timestamp actCreateDate) {
         this.actCreateDate = actCreateDate;
@@ -67,30 +121,26 @@ public class ActVO implements Serializable {
     public void setActPriID(Integer actPriID) {
         this.actPriID = actPriID;
     }
-    public String getActStartDate() {
-        String date = new SimpleDateFormat("yyyy-MM-dd HH:mm a").format(actStartDate);
-        return date;
+    public Timestamp getActStartDate() {
+        return actStartDate;
     }
     public void setActStartDate(Timestamp actStartDate) {
         this.actStartDate = actStartDate;
     }
-    public String getActEndDate() {
-        String date = new SimpleDateFormat("yyyy-MM-dd HH:mm a").format(actEndDate);
-        return date;
+    public Timestamp getActEndDate() {
+        return actEndDate;
     }
     public void setActEndDate(Timestamp actEndDate) {
         this.actEndDate = actEndDate;
     }
-    public String getActSignStartDate() {
-        String date = new SimpleDateFormat("yyyy-MM-dd HH:mm a").format(actSignStartDate);
-        return date;
+    public Timestamp getActSignStartDate() {
+        return actSignStartDate;
     }
     public void setActSignStartDate(Timestamp actSignStartDate) {
         this.actSignStartDate = actSignStartDate;
     }
-    public String getActSignEndDate() {
-        String date = new SimpleDateFormat("yyyy-MM-dd HH:mm a").format(actSignEndDate);
-        return date;
+    public Timestamp getActSignEndDate() {
+        return actSignEndDate;
     }
     public void setActSignEndDate(Timestamp actSignEndDate) {
         this.actSignEndDate = actSignEndDate;

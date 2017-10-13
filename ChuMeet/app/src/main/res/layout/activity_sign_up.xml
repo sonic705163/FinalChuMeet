@@ -25,12 +25,12 @@
 
 
         <ImageView
-            android:id="@+id/ivSignUpTakePicture"
+            android:id="@+id/ivSignUpContext"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:contentDescription="@string/ivTakepicture"
-            android:onClick="onTakePictureClick"
+            android:onClick="showPopup"
             android:scaleType="centerCrop"
             app:srcCompat="@drawable/camera"
             tools:layout_editor_absoluteX="337dp"
@@ -48,7 +48,7 @@
         app:layout_constraintLeft_toLeftOf="@+id/cardView"
         app:layout_constraintRight_toRightOf="@+id/cardView"
         app:layout_constraintHorizontal_bias="0.495"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
     <TextView
@@ -57,10 +57,13 @@
         android:layout_height="wrap_content"
         android:text="@string/tvEmailCheck"
         android:textSize="14sp"
-        app:layout_constraintRight_toRightOf="parent"
         tools:text="textview"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="8dp" />
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="@+id/etSignUpEmail"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="@+id/etSignUpEmail"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/etSignUpName" />
 
     <EditText
         android:id="@+id/etSignUpEmail"
@@ -72,7 +75,8 @@
 
         app:layout_constraintLeft_toLeftOf="@+id/etSignUpName"
         android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@+id/etSignUpName" />
+        app:layout_constraintTop_toBottomOf="@+id/etSignUpName"
+        android:layout_marginLeft="0dp" />
 
     <EditText
         android:id="@+id/etSignUpPassword"
@@ -84,7 +88,8 @@
         android:inputType="textPassword"
         app:layout_constraintTop_toBottomOf="@+id/etSignUpEmail"
 
-        app:layout_constraintLeft_toLeftOf="@+id/etSignUpEmail" />
+        app:layout_constraintLeft_toLeftOf="@+id/etSignUpEmail"
+        android:layout_marginLeft="0dp" />
 
     <EditText
         android:id="@+id/etSignUpConfirmPassword"
@@ -97,7 +102,8 @@
         android:inputType="textPassword"
         app:layout_constraintTop_toBottomOf="@+id/etSignUpPassword"
 
-        app:layout_constraintLeft_toLeftOf="@+id/etSignUpPassword"   />
+        app:layout_constraintLeft_toLeftOf="@+id/etSignUpPassword"
+        android:layout_marginLeft="0dp" />
 
     <Button
         android:id="@+id/btnSignUp"
@@ -107,7 +113,7 @@
 
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:text="@string/btSignUp2"
         android:textStyle="bold"
         app:layout_constraintHorizontal_bias="0.0"
@@ -125,7 +131,7 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
 
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
 
         android:text="@string/txv_0"
         android:textAlignment="center"

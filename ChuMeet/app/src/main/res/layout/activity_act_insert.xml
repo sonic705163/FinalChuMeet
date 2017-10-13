@@ -1,66 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/darker_gray"
     tools:context="iii.com.chumeet.act.ActInsert_1Activity">
-
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout_act_insert2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <android.support.v7.widget.Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v7.widget.CardView
-        android:layout_width="0dp"
-        android:layout_height="600dp"
-
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout_act_insert2">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <fragment
-                android:id="@+id/fmMap_actInsert"
-                class="com.google.android.gms.maps.SupportMapFragment"
+            <android.support.design.widget.AppBarLayout
+                android:id="@+id/appBarLayout_act_insert2"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_marginTop="16dp"
+                android:layout_height="wrap_content"
+                android:theme="@style/AppTheme.AppBarOverlay"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button5"
-                app:layout_constraintHorizontal_bias="0.0" />
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/tvActInsertName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/ivActInsertName"
-                android:layout_centerHorizontal="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:text="@string/tvActInsertTab1"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintLeft_toRightOf="@+id/ivActInsertName"
-                app:layout_constraintTop_toTopOf="@+id/ivActInsertName" />
+                <android.support.v7.widget.Toolbar
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/colorPrimary"
+                    app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+            </android.support.design.widget.AppBarLayout>
 
             <ImageView
                 android:id="@+id/ivActInsertName"
@@ -68,16 +34,39 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginLeft="32dp"
                 android:layout_marginStart="32dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="100dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/act1" />
 
+            <fragment
+                android:id="@+id/fmMap_actInsert"
+                class="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/button5" />
+
+            <TextView
+                android:id="@+id/tvActInsertName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ivActInsertName"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="16dp"
+                android:text="@string/tvActInsertTab1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toRightOf="@+id/ivActInsertName"
+                app:layout_constraintTop_toTopOf="@+id/ivActInsertName" />
+
             <EditText
                 android:id="@+id/etActInsertName"
-                android:layout_width="280dp"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tvActInsertName"
                 android:layout_centerHorizontal="true"
@@ -89,11 +78,7 @@
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/imageView3"
                 android:layout_centerHorizontal="true"
-
-
-                android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
                 android:text="@string/tvActInsertTab1_Location"
                 android:textSize="18sp"
@@ -114,7 +99,7 @@
 
             <EditText
                 android:id="@+id/etActInsertLocation"
-                android:layout_width="280dp"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="1dp"
@@ -144,6 +129,6 @@
 
         </android.support.constraint.ConstraintLayout>
 
-    </android.support.v7.widget.CardView>
 
-</android.support.constraint.ConstraintLayout>
+
+</android.support.v4.widget.NestedScrollView>

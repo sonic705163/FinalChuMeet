@@ -77,7 +77,7 @@ public class LogInActivity extends AppCompatActivity {
                     Intent intent = new Intent(LogInActivity.this, HomeActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
-
+                    finish();
                 }else{
                     showMessage(R.string.msg_InvalidUserOrPassword);
                 }

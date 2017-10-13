@@ -3,46 +3,89 @@ package iii.com.chumeet.act;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.List;
 
+import iii.com.chumeet.Common;
 import iii.com.chumeet.R;
+import iii.com.chumeet.Task.InsertTask;
+import iii.com.chumeet.VO.ActVO;
+import iii.com.chumeet.home.HomeActivity;
 
-public class ActInsert_2Activity extends AppCompatActivity {
-    private static final String TAG = "ActInsert_2Activity";
+import static iii.com.chumeet.Common.networkConnected;
+import static iii.com.chumeet.Common.showToast;
+
+public class ActUpdateActivity extends AppCompatActivity {
+    private final static String TAG = "ActUpdateActivity";
+    private EditText etName, etLocationName, etContent;
+    private Address address;
+    private Double latitude, longitude;
     private TextView tvActStart_Display, tvActEnd_Display;
-    private Button btnActEnd,btNext;
+    private Button btnActEnd;
     private CheckBox cbSports, cbLearn, cbFood, cbArts, cbMovie, cbGame, cbOutdoors, cbPets, cbOthers;
     private String poi_1, poi_2, poi_3, poi_4, poi_5, poi_6, poi_7, poi_8, poi_9;
     private int asYear, asMonth, asDay, asHour, asMinute;
     private int aeYear, aeMonth, aeDay, aeHour, aeMinute;
-
+    private byte[] image;
+    private Bundle bundle;
+    private ActVO actVO;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_act_insert2);
+        setContentView(R.layout.activity_act_update);
 
         findViews();
         dateTime();
 
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        bundle = this.getIntent().getExtras();
+        actVO =  (ActVO) bundle.getSerializable("actVO");
+
+        etName.setText(actVO.getActName());
+        etLocationName.setText(actVO.getActAdr());
+        tvActStart_Display.setText(actVO.getActStartDate().toString().substring(0,16));
+        tvActEnd_Display.setText(actVO.getActEndDate().toString().substring(0,16));
+        etContent.setText(actVO.getActContent());
     }
 
     private void findViews() {
-        tvActStart_Display = (TextView) findViewById(R.id.tvDatePicker_ActStart_show);
-        tvActEnd_Display = (TextView) findViewById(R.id.tvDatePicker_ActEnd_show);
+        etName = (EditText) findViewById(R.id.edName_ActUpdate);
+        etLocationName = (EditText) findViewById(R.id.edAdr_ActUpdate);
+
+        tvActStart_Display = (TextView) findViewById(R.id.tvStartDate_ActUpdate_show);
+        tvActEnd_Display = (TextView) findViewById(R.id.tvEndDate_ActUpdate_show);
+
+        etContent = (EditText) findViewById(R.id.etContent_ActUpdate);
 
         cbSports = (CheckBox) findViewById(R.id.cbSports);
         cbLearn = (CheckBox) findViewById(R.id.cbLearn);
@@ -64,46 +107,92 @@ public class ActInsert_2Activity extends AppCompatActivity {
         cbPets.setOnCheckedChangeListener(chkListener);
         cbOthers.setOnCheckedChangeListener(chkListener);
 
-//神奇小按鈕
-        TextView tmb = (TextView) findViewById(R.id.tvActPoi);
-        tmb.setOnClickListener(new View.OnClickListener() {
+
+        Button btnDone = (Button) findViewById(R.id.btnDone_ActUpdate);
+        btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tvActEnd_visible();
-                tvActStart_Display.setText("2017-10-20 09:00");
-                tvActEnd_Display.setText("2017-10-20 15:00");
+                String actName = etName.getText().toString().trim();
+                String locationName = etLocationName.getText().toString().trim();
+
+                if(locationName.length() > 0 && actName.length() > 0 ){
+
+                    locationNameToLatLng(locationName);
+
+                    try {
+                        latitude = address.getLatitude();
+                        longitude = address.getLongitude();
+                    }catch (Exception e){
+                        Toast.makeText(ActUpdateActivity.this,"地址無效請重新輸入",Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                        String actStart = tvActStart_Display.getText().toString();
+                        String actEnd = tvActEnd_Display.getText().toString();
+
+
+
+                        actVO.setActName(actName);
+                        actVO.setActLat(latitude);
+                        actVO.setActLong(longitude);
+                        actVO.setActStartDate(Timestamp.valueOf(actStart + ":00"));
+                        actVO.setActEndDate(Timestamp.valueOf(actEnd + ":00"));
+
+                        String content = etContent.getText().toString();
+
+                        actVO.setActContent(content);
+                        actVO.setActAdr(locationName);
+
+                        Bitmap srcPicture = BitmapFactory.decodeResource(getResources(), R.drawable.p);
+                        Bitmap picture = Common.downSize(srcPicture, 512);
+                        image = Common.bitmapToPNG(picture);
+
+                        if(isUpdateValid(actVO)){
+
+                            Toast.makeText(getBaseContext(), "活動已修改", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent(ActUpdateActivity.this, ActDetailActivity.class);
+                            Bundle bundle2 = new Bundle();
+                            bundle2.putSerializable("actVO", actVO);
+                            intent.putExtras(bundle2);
+                            startActivity(intent);
+
+                        }else {
+                            Toast.makeText(ActUpdateActivity.this, "修改活動失敗", Toast.LENGTH_SHORT).show();
+                        }
+                }else {
+                    Toast.makeText(ActUpdateActivity.this, "請完整輸入", Toast.LENGTH_SHORT).show();
+                }
             }
         });
-//下一步
-        btNext = (Button) findViewById(R.id.btActInsert_next2);
-        btNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String actStart = tvActStart_Display.getText().toString();
-                String actEnd = tvActEnd_Display.getText().toString();
+    }
 
-                Bundle bundle = ActInsert_2Activity.this.getIntent().getExtras();
-                bundle.putString("poi_1", poi_1);
-                bundle.putString("poi_2", poi_2);
-                bundle.putString("poi_3", poi_3);
-                bundle.putString("poi_4", poi_4);
-                bundle.putString("poi_5", poi_5);
-                bundle.putString("poi_6", poi_6);
-                bundle.putString("poi_7", poi_7);
-                bundle.putString("poi_8", poi_8);
-                bundle.putString("poi_9", poi_9);
-                bundle.putString("actStart", actStart);
-                bundle.putString("actEnd", actEnd);
+    private void locationNameToLatLng(String locationName){
+        Geocoder geocoder = new Geocoder(getBaseContext());
+        List<Address> addressList = null;
+        int maxResults = 1;
+        try{
 
-                Log.d("actStart", actStart);
+            //解譯地名/地址後可能產生多筆位置資訊，所以回傳List<Address>
+            //將maxResults設為1，限定回傳1筆
+            addressList = geocoder.getFromLocationName(locationName, maxResults);
 
-                Intent intent = new Intent(ActInsert_2Activity.this, ActInsert_3Activity.class);
+        }catch (IOException e){
 
-                intent.putExtras(bundle);
-                startActivity(intent);
+            //如無法連結到提供服務的伺服器，印出 Log.e
+            Log.e(TAG, e.toString());
 
-            }
-        });
+        }
+
+        if(addressList == null || addressList.isEmpty()){
+
+            Toast.makeText(getBaseContext(), "addressList is NULL", Toast.LENGTH_SHORT).show();
+
+        }else {
+
+            //因為當初只限定回傳1筆，所以只取第1個Address物件即可
+            address = addressList.get(0);
+
+        }
     }
 
     private CheckBox.OnCheckedChangeListener  chkListener = new CheckBox.OnCheckedChangeListener(){
@@ -152,13 +241,13 @@ public class ActInsert_2Activity extends AppCompatActivity {
     private void dateTime(){
 
 //活動開始時間
-        Button tvActStart = (Button) findViewById(R.id.btnDatePicker_ActStart);
+        Button tvActStart = (Button) findViewById(R.id.btnStartDate_ActUpdate);
         tvActStart.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
 
-                DatePickerDialog datePicker = new DatePickerDialog(ActInsert_2Activity.this,
+                DatePickerDialog datePicker = new DatePickerDialog(ActUpdateActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int day) {
@@ -169,7 +258,7 @@ public class ActInsert_2Activity extends AppCompatActivity {
 
                                 asYear = year;
                                 if(asYear < thisYear || asYear > thisYear + 1){
-                                    Toast.makeText(ActInsert_2Activity.this, "無效年份設定", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "無效年份設定", Toast.LENGTH_SHORT).show();
                                     asYear = thisYear;
                                     asMonth = thisMonth;
                                     asDay = today;
@@ -178,14 +267,14 @@ public class ActInsert_2Activity extends AppCompatActivity {
                                 }
                                 asMonth = month;
                                 if(asMonth < thisMonth && asYear <= thisYear ){
-                                    Toast.makeText(ActInsert_2Activity.this, "無效月份設定", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "無效月份設定", Toast.LENGTH_SHORT).show();
                                     asMonth = thisMonth;
                                     asDay = today;
 
                                     return;
 
                                 }else if(asMonth >= thisMonth - 6 && asYear == thisYear + 1){
-                                    Toast.makeText(ActInsert_2Activity.this, "日期請設定6個月以內", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "日期請設定6個月以內", Toast.LENGTH_SHORT).show();
                                     asYear = thisYear;
                                     asMonth = thisMonth;
                                     asDay = today;
@@ -194,7 +283,7 @@ public class ActInsert_2Activity extends AppCompatActivity {
                                 }
                                 asDay = day;
                                 if(asDay < today){
-                                    Toast.makeText(ActInsert_2Activity.this, "無效日期設定", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "無效日期設定", Toast.LENGTH_SHORT).show();
                                     asDay = today;
 
 
@@ -202,7 +291,7 @@ public class ActInsert_2Activity extends AppCompatActivity {
                             }
                         }, asYear, asMonth, asDay);
 
-                TimePickerDialog timePicker = new TimePickerDialog (ActInsert_2Activity.this,
+                TimePickerDialog timePicker = new TimePickerDialog (ActUpdateActivity.this,
                         new TimePickerDialog.OnTimeSetListener(){
                             @Override
                             public void onTimeSet(TimePicker view, int hour, int minute){
@@ -210,17 +299,16 @@ public class ActInsert_2Activity extends AppCompatActivity {
                                 asMinute = minute;
 
                                 tvActStart_Display.setText(String.valueOf(asYear) + "-" +
-                                                                      pad(asMonth + 1) + "-" +
-                                                                      pad(asDay) + " " +
-                                                                      pad(asHour) + ":" +
-                                                                      pad(asMinute));
+                                        pad(asMonth + 1) + "-" +
+                                        pad(asDay) + " " +
+                                        pad(asHour) + ":" +
+                                        pad(asMinute));
                                 tvActEnd_Display.setText(String.valueOf(asYear) + "-" +
-                                                                    pad(asMonth + 1) + "-" +
-                                                                    pad(asDay) + " " +
-                                                                    pad(asHour) + ":" +
-                                                                    pad(asMinute));
+                                        pad(asMonth + 1) + "-" +
+                                        pad(asDay) + " " +
+                                        pad(asHour) + ":" +
+                                        pad(asMinute));
 
-                                tvActEnd_visible();
                             }
                         }, asHour, asMinute, true);
 
@@ -232,11 +320,11 @@ public class ActInsert_2Activity extends AppCompatActivity {
 
 //活動結束時間
 //預設將按鈕隱藏
-        btnActEnd = (Button) findViewById(R.id.btnDatePicker_ActEnd);
+        btnActEnd = (Button) findViewById(R.id.btnEndDate_ActUpdate);
         btnActEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerDialog datePicker = new DatePickerDialog(ActInsert_2Activity.this,
+                DatePickerDialog datePicker = new DatePickerDialog(ActUpdateActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int day) {
@@ -247,7 +335,7 @@ public class ActInsert_2Activity extends AppCompatActivity {
 
                                 aeYear = year;
                                 if(aeYear < asYear){
-                                    Toast.makeText(ActInsert_2Activity.this, "不得早於開始年份", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "不得早於開始年份", Toast.LENGTH_SHORT).show();
                                     aeYear = asYear;
                                     aeMonth = asMonth;
                                     aeDay = asDay;
@@ -256,7 +344,7 @@ public class ActInsert_2Activity extends AppCompatActivity {
                                     return;
                                 }
                                 if(aeYear < thisYear || aeYear > thisYear + 1){
-                                    Toast.makeText(ActInsert_2Activity.this, "無效年份設定", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "無效年份設定", Toast.LENGTH_SHORT).show();
                                     aeYear = asYear;
                                     aeMonth = asMonth;
                                     aeDay = asDay;
@@ -266,7 +354,7 @@ public class ActInsert_2Activity extends AppCompatActivity {
                                 }
                                 aeMonth = month;
                                 if(aeYear < asMonth){
-                                    Toast.makeText(ActInsert_2Activity.this, "不得早於開始月份", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "不得早於開始月份", Toast.LENGTH_SHORT).show();
                                     aeMonth = asMonth;
                                     aeDay = asDay;
                                     aeHour = asHour;
@@ -274,7 +362,7 @@ public class ActInsert_2Activity extends AppCompatActivity {
                                     return;
                                 }
                                 if(aeMonth < thisMonth && aeYear <= thisYear ){
-                                    Toast.makeText(ActInsert_2Activity.this, "無效月份設定", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "無效月份設定", Toast.LENGTH_SHORT).show();
                                     aeMonth = asMonth;
                                     aeDay = asDay;
                                     aeHour = asHour;
@@ -282,7 +370,7 @@ public class ActInsert_2Activity extends AppCompatActivity {
                                     return;
 
                                 }else if(aeMonth >= thisMonth - 6 && aeYear == thisYear + 1){
-                                    Toast.makeText(ActInsert_2Activity.this, "日期請設定6個月以內", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "日期請設定6個月以內", Toast.LENGTH_SHORT).show();
                                     aeYear = asYear;
                                     aeMonth = asMonth;
                                     aeDay = asDay;
@@ -292,14 +380,14 @@ public class ActInsert_2Activity extends AppCompatActivity {
                                 }
                                 aeDay = day;
                                 if(aeDay < asDay){
-                                    Toast.makeText(ActInsert_2Activity.this, "不得早於開始日期", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "不得早於開始日期", Toast.LENGTH_SHORT).show();
                                     aeDay = asDay;
                                     aeHour = asHour;
                                     aeMinute = asMinute;
                                     return;
                                 }
                                 if(aeDay < today){
-                                    Toast.makeText(ActInsert_2Activity.this, "無效日期設定", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "無效日期設定", Toast.LENGTH_SHORT).show();
                                     aeDay = asDay;
                                     aeHour = asHour;
                                     aeMinute = asMinute;
@@ -308,29 +396,29 @@ public class ActInsert_2Activity extends AppCompatActivity {
                             }
                         }, aeYear, aeMonth, aeDay);
 
-                TimePickerDialog timePicker = new TimePickerDialog (ActInsert_2Activity.this,
+                TimePickerDialog timePicker = new TimePickerDialog (ActUpdateActivity.this,
                         new TimePickerDialog.OnTimeSetListener(){
                             @Override
                             public void onTimeSet(TimePicker view, int hour, int minute){
                                 aeHour = hour;
                                 if(aeHour < asHour){
-                                    Toast.makeText(ActInsert_2Activity.this, "不得早於開始時間", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "不得早於開始時間", Toast.LENGTH_SHORT).show();
                                     aeHour = asHour;
                                     aeMinute = asMinute;
                                     return;
                                 }
                                 aeMinute = minute;
                                 if(aeHour == asHour && aeMinute < asMinute){
-                                    Toast.makeText(ActInsert_2Activity.this, "不得早於開始時間", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "不得早於開始時間", Toast.LENGTH_SHORT).show();
                                     aeMinute = asMinute;
                                     return;
                                 }
 
                                 tvActEnd_Display.setText(String.valueOf(aeYear) + "-" +
-                                                                    pad(aeMonth + 1) + "-" +
-                                                                    pad(aeDay) + " " +
-                                                                    pad(aeHour) + ":" +
-                                                                    pad(aeMinute));
+                                        pad(aeMonth + 1) + "-" +
+                                        pad(aeDay) + " " +
+                                        pad(aeHour) + ":" +
+                                        pad(aeMinute));
 
                             }
                         }, aeHour, aeMinute, true);
@@ -342,11 +430,6 @@ public class ActInsert_2Activity extends AppCompatActivity {
 
     }
 
-//按鈕顯示
-    private void tvActEnd_visible(){
-        btnActEnd.setVisibility(View.VISIBLE);
-        btNext.setVisibility(View.VISIBLE);
-    }
 
     private String pad(int number) {
         if (number >= 10)
@@ -355,5 +438,40 @@ public class ActInsert_2Activity extends AppCompatActivity {
             return "0" + String.valueOf(number);
     }
 
-}
 
+    private boolean isUpdateValid(ActVO actVO){
+        Integer count = null;
+
+        if(networkConnected(this)){
+            String url = Common.URL + "ActServletAndroid";
+
+            try {
+                Gson gson = new Gson();
+
+                String jsonIn = new InsertTask(url, "update", actVO, image).execute().get();
+
+                count = gson.fromJson(jsonIn, Integer.class);
+
+            } catch (Exception e){
+                Log.e(TAG, e.toString());
+            }
+
+        }else{
+            showToast(this, R.string.msg_NoNetwork);
+        }
+        return count != null;
+    }
+
+    //監聽返回鍵點擊事件
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+
+        }
+        return true;
+    }
+}

@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="iii.com.chumeet">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="iii.com.chumeet">
 
-    <uses-permission android:name="android.permission.INTERNET" />  <!--允許使用網路權限-->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />  <!--Allows applications to access information about networks-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />  <!--允許應用程式寫入裝置上的外部記憶卡-->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />    <!--允許使用網路定位權限-->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />  <!--允許使用GPS權限-->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 允許使用網路權限 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- Allows applications to access information about networks -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 允許應用程式寫入裝置上的外部記憶卡 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 允許使用網路定位權限 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- 允許使用GPS權限 -->
+    <uses-permission android:name="android.permission.CAMERA" />
 
 
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true"/>
+        android:required="true" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_chu"
@@ -44,11 +47,11 @@
         <activity android:name=".act.ActDetailActivity" />
         <activity android:name=".club.ClubDetailActivity" />
         <activity android:name=".login.SignUpActivity" />
-        <activity android:name=".club.ClubInsertActivity"/>
         <activity android:name=".act.ActInsert_1Activity" />
         <activity android:name=".act.ActInsert_2Activity" />
         <activity android:name=".act.ActInsert_3Activity" />
         <activity android:name=".act.ActPoiActivity" />
+        <activity android:name=".act.ActUpdateActivity" />
     </application>
 
 </manifest>
