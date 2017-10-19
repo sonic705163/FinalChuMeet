@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/darker_gray"
-    tools:context="iii.com.chumeet.act.ActInsert_1Activity">
+    tools:context="iii.com.chumeet.actInsert.ActInsert_1Activity">
 
     <ScrollView
         android:layout_width="0dp"

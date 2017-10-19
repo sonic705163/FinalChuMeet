@@ -49,6 +49,7 @@
     <string name="tvEmailCheck">Check Email</string>
     <string name="btSignUp2">Sign Up</string>
     <string name="menu_toolbar_insert">insert</string>
+    <string name="menu_toolbar_search">search</string>
     <string name="action_settings">Settings</string>
     <string name="tvActInsertTab1">Give your Chumeet a name:</string>
     <string name="edActInsert_name">name</string>

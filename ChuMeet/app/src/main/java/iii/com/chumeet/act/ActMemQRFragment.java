@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -29,20 +28,19 @@ import iii.com.chumeet.VO.Mem_ActMemVO;
 import static iii.com.chumeet.Common.networkConnected;
 import static iii.com.chumeet.Common.showToast;
 
-
-public class ActMemFragment extends Fragment{
-    private final static String TAG = "ActMemFragment";
-    private RecyclerView rvMems;
+public class ActMemQRFragment extends Fragment {
+    private final static String TAG = "ActMemQRFragment";
+    private RecyclerView rvMemsQR;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_mem, container, false);
+        View view = inflater.inflate(R.layout.fragment_actmem_qrcode, container, false);
 
-        rvMems = (RecyclerView) view.findViewById(R.id.rvMems);
-        rvMems.setLayoutManager(new LinearLayoutManager(getActivity() ,LinearLayoutManager.HORIZONTAL, false));
+        rvMemsQR = (RecyclerView) view.findViewById(R.id.rvMemsQR);
+        rvMemsQR.setLayoutManager(new LinearLayoutManager(getActivity() ,LinearLayoutManager.HORIZONTAL, false));
 
         return view ;
     }
@@ -88,12 +86,17 @@ public class ActMemFragment extends Fragment{
                 showToast(getActivity(), R.string.msg_NoActsFound);
             }else{
                 for(Mem_ActMemVO actMem : mem_actMemVOs){
-                    if(actMem.getActMemStatus()==1 || actMem.getActMemStatus()==2){
+                    if(actMem.getActMemStatus()==2){
 
                         actMemVOs.add(actMem);
                     }
                 }
-                rvMems.setAdapter(new ActsRecyclerViewAdapter(getActivity(), actMemVOs));
+                try{
+                    rvMemsQR.setAdapter(new ActsRecyclerViewAdapter(getActivity(), actMemVOs));
+                }catch (Exception e){
+                    Log.e(TAG, e.toString());
+                }
+
             }
         }else{
             showToast(getActivity(), R.string.msg_NoNetwork);
@@ -123,7 +126,7 @@ public class ActMemFragment extends Fragment{
 
         @Override
         public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = layoutInflater.inflate(R.layout.item_view_mem, parent, false);
+            View itemView = layoutInflater.inflate(R.layout.item_view_mem_small, parent, false);
             return new MyViewHolder(itemView);
         }
 
@@ -131,14 +134,21 @@ public class ActMemFragment extends Fragment{
         public void onBindViewHolder(MyViewHolder myViewHolder, int position){
             final Mem_ActMemVO actMemVO = actMemVOs.get(position);
             String url = Common.URL + "MemServletAndroid";
-            int id = actMemVO.getMemID();
 
-            new GetImageTask(url, id, imageSize, myViewHolder.ivMemImg).execute();
+            try{
+                int qr = actMemVO.getQrStatus();
 
-            myViewHolder.tvMemName.setText(actMemVO.getMemName());
-            if(actMemVO.getActMemStatus()==1){
-                myViewHolder.ivMemMark.setVisibility(View.VISIBLE);
+                if(qr==1){
+                    int memID = actMemVO.getMemID();
+                    new GetImageTask(url, memID, imageSize, myViewHolder.ivMemImgQR).execute();
+                }
+
+            }catch (Exception e){
+                Log.e(TAG, e.toString());
             }
+
+
+
 
 //            myViewHolder.tvActDate.setText(memVO.getMemStatus());
 //            myViewHolder.ivActImg.setOnClickListener(new View.OnClickListener(){
@@ -155,17 +165,13 @@ public class ActMemFragment extends Fragment{
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
-            ImageView ivMemImg,ivMemMark;
-            TextView tvMemName;
+            ImageView ivMemImgQR;
 
             MyViewHolder(View itemView) {
                 super(itemView);
-                ivMemImg = (ImageView) itemView.findViewById(R.id.ivMemImg);
-                tvMemName = (TextView) itemView.findViewById(R.id.tvMemName);
-                ivMemMark = (ImageView) itemView.findViewById(R.id.ivHostMark);
+                ivMemImgQR = (ImageView) itemView.findViewById(R.id.ivMemImgQR);
 
             }
         }
     }
-
 }

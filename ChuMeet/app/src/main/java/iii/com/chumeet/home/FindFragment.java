@@ -1,14 +1,17 @@
 package iii.com.chumeet.home;
 
+import android.app.Fragment;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,16 +35,18 @@ import iii.com.chumeet.Common;
 import iii.com.chumeet.R;
 import iii.com.chumeet.Task.GetImageTask;
 import iii.com.chumeet.Task.MyTask;
+import iii.com.chumeet.Tools;
 import iii.com.chumeet.VO.ActVO;
 import iii.com.chumeet.act.ActDetailActivity;
-import iii.com.chumeet.act.ActInsert_1Activity;
 import iii.com.chumeet.act.ActPoiActivity;
+import iii.com.chumeet.act.ActSearchResultActivity;
+import iii.com.chumeet.actInsert.ActInsert_1Activity;
 
 import static iii.com.chumeet.Common.networkConnected;
 import static iii.com.chumeet.Common.showToast;
 
 
-public class FindFragment extends Fragment {
+public class FindFragment extends Fragment{
     private static final String TAG = "FindFragment";
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView rvActs;
@@ -144,7 +149,7 @@ public class FindFragment extends Fragment {
 
         intent.putExtras(bundle);
         startActivity(intent);
-        getActivity().finish();
+
     }
 
 
@@ -183,10 +188,37 @@ public class FindFragment extends Fragment {
                   //即先clear()一下, 這樣按鈕就只有Fragment中設置的自己的了, 不會有Activity中的按鈕
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
         inflater.inflate(R.menu.toolbar_menu_find, menu);
+
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu)
+    {
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener()
+        {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Intent intent = new Intent(getActivity(), ActSearchResultActivity.class);
+                intent.setAction(query);
+                startActivity(intent);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String query)
+            {
+                // pass query to your filter
+                return true;
+            }
+
+        });
+    }
     @Override
     public void onStart() {
         super.onStart();
@@ -220,7 +252,6 @@ public class FindFragment extends Fragment {
         }
     }
 
-
     private class ActsRecyclerViewAdapter extends RecyclerView.Adapter<ActsRecyclerViewAdapter.MyViewHolder>{
         private LayoutInflater layoutInflater;
         private List<ActVO> actVOs;
@@ -230,7 +261,7 @@ public class FindFragment extends Fragment {
             layoutInflater = LayoutInflater.from(context);
             this.actVOs = actVOs;
             /* 螢幕寬度除以4當作將圖的尺寸 */
-            imageSize = getResources().getDisplayMetrics().widthPixels / 4;
+            imageSize = getResources().getDisplayMetrics().widthPixels / 2;
         }
 
         @Override
@@ -253,8 +284,8 @@ public class FindFragment extends Fragment {
             new GetImageTask(url, id, imageSize, myViewHolder.ivActImg).execute();
 
             myViewHolder.tvActName.setText(actVO.getActName());
-            myViewHolder.tvActDate.setText(actVO.getActStartDate().toString());
-            myViewHolder.ivActImg.setOnClickListener(new View.OnClickListener(){
+            myViewHolder.tvActDate.setText(Tools.toFormat2(actVO.getActStartDate()));
+            myViewHolder.cardView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view){
 
@@ -263,7 +294,7 @@ public class FindFragment extends Fragment {
                     bundle.putSerializable("actVO", actVO);
                     intent.putExtras(bundle);
                     startActivity(intent);
-                    getActivity().finish();
+
                 }
             });
         }
@@ -271,9 +302,11 @@ public class FindFragment extends Fragment {
         class MyViewHolder extends RecyclerView.ViewHolder {
             ImageView ivActImg;
             TextView tvActName, tvActDate;
+            CardView cardView;
 
             MyViewHolder(View itemView) {
                 super(itemView);
+                cardView = (CardView) itemView.findViewById(R.id.cardView);
                 ivActImg = (ImageView) itemView.findViewById(R.id.ivActImg);
                 tvActName = (TextView) itemView.findViewById(R.id.tvActName);
                 tvActDate = (TextView) itemView.findViewById(R.id.tvActDate);

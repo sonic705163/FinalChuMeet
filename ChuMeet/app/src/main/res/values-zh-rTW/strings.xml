@@ -79,4 +79,10 @@
     <string name="edActNameUpdate">活動名稱</string>
     <string name="edActAdrUpdate">活動地址</string>
     <string name="stActUpdate">變更活動內容</string>
+    <string name="tvJoinedActMem">本活動的夥伴</string>
+    <string name="btnActUpdate">確認送出</string>
+    <string name="tvActImg_ActInsert">活動圖片</string>
+    <string name="tvActQR">簽到表</string>
+    <string name="tvActContent">詳細內容</string>
+    <string name="tvMemContent">簡介</string>
 </resources>

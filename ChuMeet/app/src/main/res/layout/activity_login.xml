@@ -68,15 +68,6 @@
             android:textStyle="bold"
             android:typeface="sans" />
 
-        <Button
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btForgotPW"
-            android:textAllCaps="false"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="235dp" />
-
     </LinearLayout>
 
     <TextView

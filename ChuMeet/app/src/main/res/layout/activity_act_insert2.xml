@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/darker_gray"
-    tools:context="iii.com.chumeet.act.ActInsert_2Activity">
+    tools:context="iii.com.chumeet.actInsert.ActInsert_2Activity">
 
 
     <android.support.constraint.ConstraintLayout
@@ -15,7 +15,7 @@
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appBarLayout_act_insert2"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -49,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginLeft="32dp"
+                    android:layout_marginEnd="32dp"
                     android:layout_marginTop="32dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -170,7 +170,7 @@
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="500dp"
 
             app:layout_constraintHorizontal_bias="0.0"
@@ -184,13 +184,17 @@
 
                 <Button
                     android:id="@+id/btActInsert_next2"
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="16dp"
                     android:text="@string/btnNext_actInsert"
+                    android:textStyle="bold"
                     android:visibility="invisible"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintLeft_toLeftOf="@+id/tvDatePicker_ActEnd_show"
-                    app:layout_constraintRight_toRightOf="@+id/tvDatePicker_ActEnd_show"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvDatePicker_ActEnd_show" />
 
                 <ImageView
@@ -210,13 +214,14 @@
 
                 <Button
                     android:id="@+id/btnDatePicker_ActStart"
+
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@string/tvAct_StartDatePicker"
                     android:textAllCaps="false"
-                    android:textColor="@android:color/holo_orange_dark"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintLeft_toLeftOf="@+id/imageView3"
                     app:layout_constraintRight_toRightOf="@+id/imageView3"
@@ -254,12 +259,12 @@
 
                 <Button
                     android:id="@+id/btnDatePicker_ActEnd"
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/tvAct_EndDatePicker"
                     android:textAllCaps="false"
-                    android:textColor="@android:color/holo_orange_dark"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     android:visibility="invisible"
                     app:layout_constraintLeft_toLeftOf="@+id/btnDatePicker_ActStart"

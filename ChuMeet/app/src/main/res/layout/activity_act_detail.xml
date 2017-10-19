@@ -39,49 +39,59 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tvActDetName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignStart="@+id/tvClubDetContent"
-                        android:layout_marginTop="21dp"
-                        android:layout_weight="1"
-                        android:text="TextView" />
+
 
                     <ImageView
                         android:id="@+id/ivActDetImg"
-                        android:layout_width="140dp"
-                        android:layout_height="140dp"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_weight="1"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="16dp"
                         app:srcCompat="@drawable/p" />
 
-                    <TextView
-                        android:id="@+id/tvClubDetContent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="100dp"
-
-                        android:layout_below="@+id/tvActDetName"
-                        android:layout_marginTop="26dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:layout_toEndOf="@+id/ivActDetImg"
-                        android:text="TextView"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:orientation="vertical">
+
+
+                        <TextView
+                            android:id="@+id/tvActDetLoc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="50dp"
+                            android:layout_marginEnd="16dp"
+                            android:drawablePadding="8dp"
+                            android:drawableStart="@drawable/home"
+                            android:text="TextView"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvActDetHost"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="30dp"
+                            android:drawablePadding="8dp"
+                            android:drawableStart="@drawable/man"
+                            android:text="TextView"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+
+
+                    </LinearLayout>
+
+
+
+
 
                 </RelativeLayout>
-
-                <Button
-                    android:id="@+id/btnJoinAct"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginRight="30dp"
-                    android:text="@string/btnJoinAct" />
 
                 <TextView
                     android:id="@+id/tvActDetDate"
@@ -89,27 +99,75 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
-                    android:layout_marginTop="30dp"
-                    android:text="TextView" />
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:drawablePadding="16dp"
+                    android:drawableStart="@drawable/clock"
+                    android:text="TextView"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvActDetLoc"
+                <Button
+                    android:id="@+id/btnJoinAct"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
-                    android:layout_marginTop="30dp"
-                    android:text="TextView" />
+                    android:layout_marginTop="16dp"
+                    android:text="@string/btnJoinAct"
+                    android:textColor="@color/colorAccent"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tvActDetHost"
+                    android:id="@+id/textView9"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginTop="30dp"
-                    android:text="TextView" />
+                    android:layout_marginBottom="16dp"
 
+                    android:layout_marginTop="16dp"
+                    android:text="@string/tvActContent"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <android.support.v4.widget.NestedScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:layout_margin="16dp"
+                    android:background="@color/cardview_light_background"
+                    android:scrollbars="vertical">
+
+                    <TextView
+                        android:id="@+id/tvClubDetContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        android:text="TextView"
+                        android:textSize="16sp" />
+                </android.support.v4.widget.NestedScrollView>
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+
+                    android:layout_marginTop="16dp"
+                    android:text="@string/tvActQR"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:id="@+id/fmActQRCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginStart="30dp" >
+
+                </FrameLayout>
                 <fragment
                     android:id="@+id/fmMap"
                     class="com.google.android.gms.maps.SupportMapFragment"
@@ -117,10 +175,22 @@
                     android:layout_height="160dp"
                     android:layout_marginTop="30dp" />
 
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/tvJoinedActMem"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
                 <FrameLayout
                     android:id="@+id/fmActDetail"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp">
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="16dp">
 
                 </FrameLayout>
 

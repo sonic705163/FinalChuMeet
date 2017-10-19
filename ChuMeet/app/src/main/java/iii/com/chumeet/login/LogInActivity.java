@@ -135,7 +135,12 @@ public class LogInActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
+        Log.d(TAG,"************************"+getTaskId()+"我被消滅了***************************");
+    }
 }
 
 

@@ -38,17 +38,16 @@ public class MainActivity extends AppCompatActivity {
             //切換到SignUp頁面
     public void gotoHomeActivity(View v){
         Intent intent = new Intent(this, SignUpActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+
 
     }
 
             //切換到會員登入頁面
     public void gotoLogInActivity(View v){
-
         Intent intent = new Intent(this, LogInActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+
 
     }
 
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
                         @Override
-                        public void onClick(DialogInterface dialog0, int which){
+                        public void onClick(DialogInterface dialog2, int which){
 
 //不這樣寫都不知道怎麼離開
                             Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -126,5 +125,11 @@ public class MainActivity extends AppCompatActivity {
 
         }
         return true;
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG,"************************"+getTaskId()+"我被消滅了***************************");
     }
 }

@@ -14,10 +14,10 @@
         android:id="@+id/navGoing"
         android:icon="@mipmap/ic_going"
         android:title="@string/navGoing" />
-    <item
-        android:id="@+id/navMessage"
-        android:icon="@mipmap/ic_message"
-        android:title="@string/navMessage" />
+    <!--<item-->
+        <!--android:id="@+id/navMessage"-->
+        <!--android:icon="@mipmap/ic_message"-->
+        <!--android:title="@string/navMessage" />-->
     <item
         android:id="@+id/navProfile"
         android:icon="@mipmap/ic_profile"

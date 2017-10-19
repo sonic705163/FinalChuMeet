@@ -1,28 +1,40 @@
 package iii.com.chumeet.act;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -30,26 +42,29 @@ import java.util.List;
 
 import iii.com.chumeet.Common;
 import iii.com.chumeet.R;
-import iii.com.chumeet.Task.InsertTask;
+import iii.com.chumeet.Task.GetImageTask;
+import iii.com.chumeet.Task.InsertOrUpdateTask;
 import iii.com.chumeet.VO.ActVO;
-import iii.com.chumeet.home.HomeActivity;
 
+import static iii.com.chumeet.Common.downSize;
 import static iii.com.chumeet.Common.networkConnected;
 import static iii.com.chumeet.Common.showToast;
 
-public class ActUpdateActivity extends AppCompatActivity {
+public class ActUpdateActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener  {
     private final static String TAG = "ActUpdateActivity";
+    private final static int REQ_TAKE_PICTURE = 0;
+    private static final int REQUESTCODE_PHOTO_LIB = 1;
+    private Bitmap picture;
+    private File file;
+    private ImageView ivActImg;
     private EditText etName, etLocationName, etContent;
     private Address address;
     private Double latitude, longitude;
     private TextView tvActStart_Display, tvActEnd_Display;
-    private Button btnActEnd;
-    private CheckBox cbSports, cbLearn, cbFood, cbArts, cbMovie, cbGame, cbOutdoors, cbPets, cbOthers;
-    private String poi_1, poi_2, poi_3, poi_4, poi_5, poi_6, poi_7, poi_8, poi_9;
+    private String tvActStart, tvActEnd;
     private int asYear, asMonth, asDay, asHour, asMinute;
     private int aeYear, aeMonth, aeDay, aeHour, aeMinute;
     private byte[] image;
-    private Bundle bundle;
     private ActVO actVO;
 
 
@@ -61,6 +76,24 @@ public class ActUpdateActivity extends AppCompatActivity {
         findViews();
         dateTime();
 
+        Bundle bundle = this.getIntent().getExtras();
+        actVO = (ActVO) bundle.getSerializable("actVO");
+
+        if(networkConnected(this)) {
+            String url = Common.URL + "ActServletAndroid";
+            try {
+                int imageSize = getResources().getDisplayMetrics().widthPixels / 2;
+
+                picture = new GetImageTask(url, actVO.getActID(), imageSize, ivActImg).execute().get();
+
+                image = Common.bitmapToPNG(picture);
+
+            }catch (Exception e){
+                Log.e(TAG, e.toString());
+            }
+        }else{
+            showToast(this, R.string.msg_NoNetwork);
+        }
 
     }
 
@@ -68,17 +101,61 @@ public class ActUpdateActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        bundle = this.getIntent().getExtras();
-        actVO =  (ActVO) bundle.getSerializable("actVO");
+
+        Bundle bundle = this.getIntent().getExtras();
+        actVO = (ActVO) bundle.getSerializable("actVO");
 
         etName.setText(actVO.getActName());
         etLocationName.setText(actVO.getActAdr());
+
+
+        String sDate = actVO.getActStartDate().toString();
+        int year = Integer.valueOf(sDate.substring(0,4));
+        int month = Integer.valueOf(sDate.substring(5,7))-1;
+        int today = Integer.valueOf(sDate.substring(8,10));
+        int hour = Integer.valueOf(sDate.substring(11,13));
+        int minute = Integer.valueOf(sDate.substring(14,16));
+
+
+        asYear = year;
+        asMonth = month;
+        asDay = today;
+        asHour = hour;
+        asMinute = minute;
+
+        String sDate2 = actVO.getActEndDate().toString();
+        int year2 = Integer.valueOf(sDate2.substring(0,4));
+        int month2 = Integer.valueOf(sDate2.substring(5,7))-1;
+        int today2 = Integer.valueOf(sDate2.substring(8,10));
+        int hour2 = Integer.valueOf(sDate2.substring(11,13));
+        int minute2 = Integer.valueOf(sDate2.substring(14,16));
+
+        aeYear = year2;
+        aeMonth = month2;
+        aeDay = today2;
+        aeHour = hour2;
+        aeMinute = minute2;
+
+
+
+        tvActStart = actVO.getActStartDate().toString().substring(0,16);
+        tvActEnd = actVO.getActEndDate().toString().substring(0,16);
+
         tvActStart_Display.setText(actVO.getActStartDate().toString().substring(0,16));
         tvActEnd_Display.setText(actVO.getActEndDate().toString().substring(0,16));
+
         etContent.setText(actVO.getActContent());
+
+
+
+        checkPermission();                  //權限請求
+
     }
 
+
+
     private void findViews() {
+        ivActImg = (ImageView) findViewById(R.id.ivActImg_ActUpdate);
         etName = (EditText) findViewById(R.id.edName_ActUpdate);
         etLocationName = (EditText) findViewById(R.id.edAdr_ActUpdate);
 
@@ -87,25 +164,9 @@ public class ActUpdateActivity extends AppCompatActivity {
 
         etContent = (EditText) findViewById(R.id.etContent_ActUpdate);
 
-        cbSports = (CheckBox) findViewById(R.id.cbSports);
-        cbLearn = (CheckBox) findViewById(R.id.cbLearn);
-        cbFood = (CheckBox) findViewById(R.id.cbFood);
-        cbArts = (CheckBox) findViewById(R.id.cbArts);
-        cbMovie = (CheckBox) findViewById(R.id.cbMovie);
-        cbGame = (CheckBox) findViewById(R.id.cbGame);
-        cbOutdoors = (CheckBox) findViewById(R.id.cbOutdoors);
-        cbPets = (CheckBox) findViewById(R.id.cbPets);
-        cbOthers = (CheckBox) findViewById(R.id.cbOthers);
 
-        cbSports.setOnCheckedChangeListener(chkListener);
-        cbLearn.setOnCheckedChangeListener(chkListener);
-        cbFood.setOnCheckedChangeListener(chkListener);
-        cbArts.setOnCheckedChangeListener(chkListener);
-        cbMovie.setOnCheckedChangeListener(chkListener);
-        cbGame.setOnCheckedChangeListener(chkListener);
-        cbOutdoors.setOnCheckedChangeListener(chkListener);
-        cbPets.setOnCheckedChangeListener(chkListener);
-        cbOthers.setOnCheckedChangeListener(chkListener);
+
+
 
 
         Button btnDone = (Button) findViewById(R.id.btnDone_ActUpdate);
@@ -126,25 +187,20 @@ public class ActUpdateActivity extends AppCompatActivity {
                         Toast.makeText(ActUpdateActivity.this,"地址無效請重新輸入",Toast.LENGTH_SHORT).show();
                         return;
                     }
-                        String actStart = tvActStart_Display.getText().toString();
-                        String actEnd = tvActEnd_Display.getText().toString();
-
-
 
                         actVO.setActName(actName);
                         actVO.setActLat(latitude);
                         actVO.setActLong(longitude);
-                        actVO.setActStartDate(Timestamp.valueOf(actStart + ":00"));
-                        actVO.setActEndDate(Timestamp.valueOf(actEnd + ":00"));
+                        actVO.setActStartDate(Timestamp.valueOf(tvActStart + ":00"));
+                        actVO.setActEndDate(Timestamp.valueOf(tvActEnd + ":00"));
+                        actVO.setActSignStartDate(Timestamp.valueOf(tvActStart + ":00"));
+                        actVO.setActSignEndDate(Timestamp.valueOf(tvActEnd + ":00"));
 
                         String content = etContent.getText().toString();
 
                         actVO.setActContent(content);
                         actVO.setActAdr(locationName);
 
-                        Bitmap srcPicture = BitmapFactory.decodeResource(getResources(), R.drawable.p);
-                        Bitmap picture = Common.downSize(srcPicture, 512);
-                        image = Common.bitmapToPNG(picture);
 
                         if(isUpdateValid(actVO)){
 
@@ -155,7 +211,7 @@ public class ActUpdateActivity extends AppCompatActivity {
                             bundle2.putSerializable("actVO", actVO);
                             intent.putExtras(bundle2);
                             startActivity(intent);
-
+                            finish();
                         }else {
                             Toast.makeText(ActUpdateActivity.this, "修改活動失敗", Toast.LENGTH_SHORT).show();
                         }
@@ -195,54 +251,13 @@ public class ActUpdateActivity extends AppCompatActivity {
         }
     }
 
-    private CheckBox.OnCheckedChangeListener  chkListener = new CheckBox.OnCheckedChangeListener(){
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-            if (cbSports.isChecked())
-                poi_1 = "Sports";
-            else
-                poi_1 = "";
-            if (cbLearn.isChecked())
-                poi_2 = "Learning";
-            else
-                poi_2 = "";
-            if (cbFood.isChecked())
-                poi_3 = "Food and Drink";
-            else
-                poi_3 = "";
-            if (cbArts.isChecked())
-                poi_4 = "Arts";
-            else
-                poi_4 = "";
-            if (cbMovie.isChecked())
-                poi_5 = "Movie";
-            else
-                poi_5 = "";
-            if (cbGame.isChecked())
-                poi_6 = "Game";
-            else
-                poi_6 = "";
-            if (cbOutdoors.isChecked())
-                poi_7 = "Outdoors";
-            else
-                poi_7 = "";
-            if (cbPets.isChecked())
-                poi_8 = "Pets";
-            else
-                poi_8 = "";
-            if (cbOthers.isChecked())
-                poi_9 = "Others";
-            else
-                poi_9 = "";
-        }
-    };
 
     private void dateTime(){
 
 //活動開始時間
-        Button tvActStart = (Button) findViewById(R.id.btnStartDate_ActUpdate);
-        tvActStart.setOnClickListener(new View.OnClickListener() {
+        final Button btnStartDate = (Button) findViewById(R.id.btnStartDate_ActUpdate);
+        btnStartDate.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -255,6 +270,7 @@ public class ActUpdateActivity extends AppCompatActivity {
                                 int thisYear = calendar.get(Calendar.YEAR);
                                 int thisMonth = calendar.get(Calendar.MONTH);
                                 int today = calendar.get(Calendar.DAY_OF_MONTH);
+
 
                                 asYear = year;
                                 if(asYear < thisYear || asYear > thisYear + 1){
@@ -282,7 +298,7 @@ public class ActUpdateActivity extends AppCompatActivity {
                                     return;
                                 }
                                 asDay = day;
-                                if(asDay < today){
+                                if(asDay < today && asMonth == thisMonth){
                                     Toast.makeText(ActUpdateActivity.this, "無效日期設定", Toast.LENGTH_SHORT).show();
                                     asDay = today;
 
@@ -299,18 +315,28 @@ public class ActUpdateActivity extends AppCompatActivity {
                                 asMinute = minute;
 
                                 tvActStart_Display.setText(String.valueOf(asYear) + "-" +
-                                        pad(asMonth + 1) + "-" +
-                                        pad(asDay) + " " +
-                                        pad(asHour) + ":" +
-                                        pad(asMinute));
+                                                                    pad(asMonth + 1) + "-" +
+                                                                    pad(asDay) + " " +
+                                                                    pad(asHour) + ":" +
+                                                                    pad(asMinute));
                                 tvActEnd_Display.setText(String.valueOf(asYear) + "-" +
-                                        pad(asMonth + 1) + "-" +
-                                        pad(asDay) + " " +
-                                        pad(asHour) + ":" +
-                                        pad(asMinute));
+                                                                    pad(asMonth + 1) + "-" +
+                                                                    pad(asDay) + " " +
+                                                                    pad(asHour) + ":" +
+                                                                    pad(asMinute));
+
+
+                                tvActStart = tvActStart_Display.getText().toString();
+                                tvActEnd = tvActEnd_Display.getText().toString();
+
+                                aeYear = asYear;
+                                aeMonth = asMonth;
+                                aeDay = asDay;
+                                aeHour = asHour;
+                                aeMinute = asMinute;
 
                             }
-                        }, asHour, asMinute, true);
+                        }, asHour, asMinute, false);
 
                 timePicker.show();
                 datePicker.show();
@@ -319,9 +345,8 @@ public class ActUpdateActivity extends AppCompatActivity {
         });
 
 //活動結束時間
-//預設將按鈕隱藏
-        btnActEnd = (Button) findViewById(R.id.btnEndDate_ActUpdate);
-        btnActEnd.setOnClickListener(new View.OnClickListener() {
+        Button btnEndDate = (Button) findViewById(R.id.btnEndDate_ActUpdate);
+        btnEndDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePickerDialog datePicker = new DatePickerDialog(ActUpdateActivity.this,
@@ -331,11 +356,10 @@ public class ActUpdateActivity extends AppCompatActivity {
                                 Calendar calendar = Calendar.getInstance();
                                 int thisYear = calendar.get(Calendar.YEAR);
                                 int thisMonth = calendar.get(Calendar.MONTH);
-                                int today = calendar.get(Calendar.DAY_OF_MONTH);
 
                                 aeYear = year;
                                 if(aeYear < asYear){
-                                    Toast.makeText(ActUpdateActivity.this, "不得早於開始年份", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActUpdateActivity.this, "不得早於開始時間", Toast.LENGTH_SHORT).show();
                                     aeYear = asYear;
                                     aeMonth = asMonth;
                                     aeDay = asDay;
@@ -343,7 +367,7 @@ public class ActUpdateActivity extends AppCompatActivity {
                                     aeMinute = asMinute;
                                     return;
                                 }
-                                if(aeYear < thisYear || aeYear > thisYear + 1){
+                                if(aeYear > thisYear + 1){
                                     Toast.makeText(ActUpdateActivity.this, "無效年份設定", Toast.LENGTH_SHORT).show();
                                     aeYear = asYear;
                                     aeMonth = asMonth;
@@ -353,7 +377,7 @@ public class ActUpdateActivity extends AppCompatActivity {
                                     return;
                                 }
                                 aeMonth = month;
-                                if(aeYear < asMonth){
+                                if(aeMonth < asMonth && aeYear == thisYear){
                                     Toast.makeText(ActUpdateActivity.this, "不得早於開始月份", Toast.LENGTH_SHORT).show();
                                     aeMonth = asMonth;
                                     aeDay = asDay;
@@ -379,20 +403,14 @@ public class ActUpdateActivity extends AppCompatActivity {
                                     return;
                                 }
                                 aeDay = day;
-                                if(aeDay < asDay){
+                                if(aeDay < asDay && aeMonth == asMonth ){
                                     Toast.makeText(ActUpdateActivity.this, "不得早於開始日期", Toast.LENGTH_SHORT).show();
-                                    aeDay = asDay;
-                                    aeHour = asHour;
-                                    aeMinute = asMinute;
-                                    return;
-                                }
-                                if(aeDay < today){
-                                    Toast.makeText(ActUpdateActivity.this, "無效日期設定", Toast.LENGTH_SHORT).show();
                                     aeDay = asDay;
                                     aeHour = asHour;
                                     aeMinute = asMinute;
 
                                 }
+
                             }
                         }, aeYear, aeMonth, aeDay);
 
@@ -401,7 +419,7 @@ public class ActUpdateActivity extends AppCompatActivity {
                             @Override
                             public void onTimeSet(TimePicker view, int hour, int minute){
                                 aeHour = hour;
-                                if(aeHour < asHour){
+                                if(aeHour < asHour && aeYear == asYear && aeMonth == asMonth && aeDay == asDay){
                                     Toast.makeText(ActUpdateActivity.this, "不得早於開始時間", Toast.LENGTH_SHORT).show();
                                     aeHour = asHour;
                                     aeMinute = asMinute;
@@ -415,19 +433,20 @@ public class ActUpdateActivity extends AppCompatActivity {
                                 }
 
                                 tvActEnd_Display.setText(String.valueOf(aeYear) + "-" +
-                                        pad(aeMonth + 1) + "-" +
-                                        pad(aeDay) + " " +
-                                        pad(aeHour) + ":" +
-                                        pad(aeMinute));
+                                                                    pad(aeMonth + 1) + "-" +
+                                                                    pad(aeDay) + " " +
+                                                                    pad(aeHour) + ":" +
+                                                                    pad(aeMinute));
+
+                                tvActEnd = tvActEnd_Display.getText().toString();
 
                             }
-                        }, aeHour, aeMinute, true);
+                        }, aeHour, aeMinute, false);
                 timePicker.show();
                 datePicker.show();
 
             }
         });
-
     }
 
 
@@ -448,7 +467,7 @@ public class ActUpdateActivity extends AppCompatActivity {
             try {
                 Gson gson = new Gson();
 
-                String jsonIn = new InsertTask(url, "update", actVO, image).execute().get();
+                String jsonIn = new InsertOrUpdateTask(url, "update", actVO, image).execute().get();
 
                 count = gson.fromJson(jsonIn, Integer.class);
 
@@ -462,16 +481,120 @@ public class ActUpdateActivity extends AppCompatActivity {
         return count != null;
     }
 
-    //監聽返回鍵點擊事件
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event){
-        if(keyCode == KeyEvent.KEYCODE_BACK){
+    //****************************************************拍照選單***************************************
+    public void showPopup(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
 
-            Intent intent = new Intent(this, HomeActivity.class);
-            startActivity(intent);
-            finish();
-
-        }
-        return true;
+        // This activity implements OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.menu_picture);
+        popup.show();
     }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_tackPicture:
+                takePicture();
+                return true;
+            case R.id.action_photoLib:
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQUESTCODE_PHOTO_LIB);
+                return true;
+            default:
+                return false;
+        }
+    }
+    //****************************************************拍照選單***************************************
+
+    //檢查裝置有沒有應用程式可以執行拍照動作，如果有則數量會大於0
+    public boolean isIntentAvailable(Context context, Intent intent){
+        PackageManager packageManager = context.getPackageManager();
+        List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
+                PackageManager.MATCH_DEFAULT_ONLY);
+        return list.size() > 0;
+    }
+
+
+    //書本12-25頁
+    private void takePicture() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        //指定存檔路徑
+        file = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        file = new File(file, "picture.jpg");
+
+        Uri contentUri = FileProvider.getUriForFile(
+                this, getPackageName() + ".provider", file);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
+
+        if (isIntentAvailable(this, intent)) {
+            startActivityForResult(intent, REQ_TAKE_PICTURE);   //啟動onActivityResult
+        } else {
+            showToast(this, R.string.msg_NoCameraApp);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            switch (requestCode){
+                case REQ_TAKE_PICTURE:
+                    Bitmap srcPicture = BitmapFactory.decodeFile(file.getPath());
+                    picture = downSize(srcPicture, 512);
+                    ivActImg.setImageBitmap(picture);
+                    image = Common.bitmapToPNG(picture);
+                    break;
+
+                case REQUESTCODE_PHOTO_LIB:
+                    Uri uri = data.getData();
+                    String[] columns = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(uri, columns,
+                            null, null, null);
+                    if (cursor != null && cursor.moveToFirst()) {
+                        String imagePath = cursor.getString(0);
+                        cursor.close();
+                        Bitmap bitmap2 = BitmapFactory.decodeFile(imagePath);
+                        bitmap2 = downSize(bitmap2, 512);
+
+                        ivActImg.setImageBitmap(bitmap2);
+
+                        ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+                        bitmap2.compress(Bitmap.CompressFormat.JPEG, 100, out2);
+                        image = out2.toByteArray();
+                    }
+                    break;
+                default:
+                    Toast.makeText(this, "no react", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    }
+    //檢查若尚未授權, 則向使用者要求存取權限、拍照權限
+    private void checkPermission() {
+
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA
+                    }, 1);
+        }
+
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG,"************************"+getTaskId()+"我被消滅了***************************");
+    }
+
 }

@@ -13,6 +13,13 @@ public class Mem_ActMemVO {
     private Timestamp actJoinDate;
     private Integer actStar;
     private Timestamp actStarDate;
+    private Integer qrStatus;
+    public Integer getQrStatus() {
+        return qrStatus;
+    }
+    public void setQrStatus(Integer qrStatus) {
+        this.qrStatus = qrStatus;
+    }
     private String memEmail;
     private String memPw;
     private Integer memberType;

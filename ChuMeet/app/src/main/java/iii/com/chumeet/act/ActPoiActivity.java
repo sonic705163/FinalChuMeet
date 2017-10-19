@@ -2,9 +2,11 @@ package iii.com.chumeet.act;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,15 +28,13 @@ import iii.com.chumeet.Common;
 import iii.com.chumeet.R;
 import iii.com.chumeet.Task.GetImageTask;
 import iii.com.chumeet.Task.MyTask;
+import iii.com.chumeet.Tools;
 import iii.com.chumeet.VO.ActVO;
 import iii.com.chumeet.home.HomeActivity;
 
 import static iii.com.chumeet.Common.networkConnected;
 import static iii.com.chumeet.Common.showToast;
 
-/**
- * Created by sonic on 2017/10/9.
- */
 
 public class ActPoiActivity extends AppCompatActivity {
     private final static String TAG = "ActPoiActivity";
@@ -112,7 +112,7 @@ public class ActPoiActivity extends AppCompatActivity {
             layoutInflater = LayoutInflater.from(context);
             this.actVOs = actVOs;
             /* 螢幕寬度除以4當作將圖的尺寸 */
-            imageSize = getResources().getDisplayMetrics().widthPixels / 4;
+            imageSize = getResources().getDisplayMetrics().widthPixels / 2;
         }
 
         @Override
@@ -130,13 +130,20 @@ public class ActPoiActivity extends AppCompatActivity {
         public void onBindViewHolder(MyViewHolder myViewHolder, int position){
             final ActVO actVO = actVOs.get(position);
             String url = Common.URL + "ActServletAndroid";
+            SharedPreferences pref = getSharedPreferences(Common.PREF_FILE, MODE_PRIVATE);
+            int memID = pref.getInt("memID", 1);
             int actID = actVO.getActID();
 
             new GetImageTask(url, actID, imageSize, myViewHolder.ivActImg).execute();
 
             myViewHolder.tvActName.setText(actVO.getActName());
-            myViewHolder.tvActDate.setText(actVO.getActStartDate().toString());
-            myViewHolder.ivActImg.setOnClickListener(new View.OnClickListener(){
+            myViewHolder.tvActStartDate.setText("開始日期: "+Tools.toFormat(actVO.getActStartDate()));
+            myViewHolder.tvActEndDate.setText("結束日期: "+Tools.toFormat(actVO.getActEndDate()));
+            if(actVO.getMemID()==memID) {
+                myViewHolder.ivHost.setVisibility(View.VISIBLE);
+            }
+
+            myViewHolder.cardView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view){
 
@@ -145,23 +152,35 @@ public class ActPoiActivity extends AppCompatActivity {
                     bundle.putSerializable("actVO", actVO);
                     intent.putExtras(bundle);
                     startActivity(intent);
-                    finish();
+
                 }
             });
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
-            ImageView ivActImg;
-            TextView tvActName, tvActDate;
+            ImageView ivActImg, ivHost;
+            TextView tvActName, tvActStartDate, tvActEndDate;
+            CardView cardView;
 
             MyViewHolder(View itemView) {
                 super(itemView);
+                cardView = (CardView) itemView.findViewById(R.id.cardView);
                 ivActImg = (ImageView) itemView.findViewById(R.id.ivActImg);
                 tvActName = (TextView) itemView.findViewById(R.id.tvActName);
-                tvActDate = (TextView) itemView.findViewById(R.id.tvActDate);
+                tvActStartDate = (TextView) itemView.findViewById(R.id.tvActStartDate);
+                tvActEndDate = (TextView) itemView.findViewById(R.id.tvActEndDate);
+                ivHost = (ImageView) itemView.findViewById(R.id.ivHost);
             }
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG,"************************"+getTaskId()+"我被消滅了***************************");
+    }
+
     //監聽返回鍵點擊事件
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event){
@@ -170,7 +189,6 @@ public class ActPoiActivity extends AppCompatActivity {
             Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
             finish();
-
         }
         return true;
     }

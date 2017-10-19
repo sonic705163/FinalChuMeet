@@ -21,6 +21,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -59,90 +60,23 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
     private Integer memID = null;
     private Bitmap picture;
     private File file;
-    private EditText etName;
-    private EditText etEmail;
-    private EditText etPassword;
-    private EditText etConfirmPassword;
+    private EditText etName,etEmail,etPassword,etConfirmPassword;
     private ImageView ivTakePicture;
     private byte[] image;
-
-//*************************************Task & 連線開始*****************************************
-    private class SignUpTask extends AsyncTask<Object, Integer, String>{
-        private final static String TAG = "SignUpTask";
-        private String url, signUp, name, email, password;
-        private byte[] image;
-
-
-        private SignUpTask(String url, String signUp,String name, String email, String password, byte[] image) {
-            this.url = url;
-            this.signUp = signUp;
-            this.name = name;
-            this.email = email;
-            this.password = password;
-            this.image = image;
-        }
-
-    @Override
-        protected String doInBackground(Object[] params) {
-            String jsonIn;
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("action", signUp);
-            jsonObject.addProperty("name", name);
-            jsonObject.addProperty("email", email);
-            jsonObject.addProperty("password", password);
-            jsonObject.addProperty("imageBase64", Base64.encodeToString(image, Base64.DEFAULT));
-            try {
-                jsonIn = getRemoteData(url, jsonObject.toString()); //jsonOut & jsonIn
-            } catch (IOException e) {
-                Log.e(TAG, e.toString());
-                return null;
-            }
-            return jsonIn;
-        }
-    }
-
-    private String getRemoteData(String url, String jsonOut) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-        con.setDoInput(true);
-        con.setDoOutput(true);
-        con.setUseCaches(false);
-        con.setRequestMethod("POST");
-        con.setRequestProperty("charset", "UTF-8");
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
-        bw.write(jsonOut);
-        Log.d(TAG, "jsonOut:\n   " + jsonOut);
-        bw.close();
-
-        int responseCode = con.getResponseCode();
-        StringBuilder jsonIn = new StringBuilder();
-        if(responseCode == 200){
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String line;
-            while((line = br.readLine()) != null){
-                jsonIn.append(line);
-            }
-        }else{
-            Log.d(TAG, "response code:\n   " + responseCode);
-        }
-        con.disconnect();
-        Log.d(TAG, "jsonIn:\n   " + jsonIn);
-        return jsonIn.toString();
-    }
-//*************************************Task & 連線結束*****************************************
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         findViews();
+
     }
 
     @Override
     protected  void onStart(){
         super.onStart();
         checkPermission();
-        checkPermission2();
+
     }
 
     private void findViews() {
@@ -152,7 +86,7 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
         etConfirmPassword = (EditText) findViewById(R.id.etSignUpConfirmPassword);
         ivTakePicture = (ImageView) findViewById(R.id.ivSignUpContext);
 
-//        registerForContextMenu(ivTakePicture);
+
 
 //檢查Email是否重複按鈕
         TextView tvCheckEmail = (TextView) findViewById(R.id.tvSignUpCheckEmail);
@@ -204,15 +138,17 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
                     return;
                 }
 
-                if(file != null) {
-                    Bitmap srcPicture = BitmapFactory.decodeFile(file.getPath());
-                    picture = downSize(srcPicture, 512);
-                    image = Common.bitmapToPNG(picture);
+                if(image==null) {
+                    if(file != null) {
+                        Bitmap srcPicture = BitmapFactory.decodeFile(file.getPath());
+                        picture = downSize(srcPicture, 512);
+                        image = Common.bitmapToPNG(picture);
 
-                }else {
-                    Bitmap srcPicture = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
-                    Bitmap picture = downSize(srcPicture, 512);
-                    image = Common.bitmapToPNG(picture);
+                    }else {
+                        Bitmap srcPicture = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+                        Bitmap picture2 = downSize(srcPicture, 512);
+                        image = Common.bitmapToPNG(picture2);
+                    }
                 }
                 if(isEmailUsable(email) && confirmPassword.equals(password)){
 
@@ -228,7 +164,6 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
                         setResult(RESULT_OK);
 
                         Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
-//                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         finish();
                     }else{
@@ -258,7 +193,7 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
         });
     }
 
-//
+    //****************************************************拍照選單***************************************
     public void showPopup(View v) {
         PopupMenu popup = new PopupMenu(this, v);
 
@@ -272,26 +207,18 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_tackPicture:
-
                     takePicture();
-
                 return true;
-
             case R.id.action_photoLib:
-
-
                     Intent intent = new Intent(Intent.ACTION_PICK,
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(intent, REQUESTCODE_PHOTO_LIB);
-
-
-
                 return true;
             default:
                 return false;
         }
     }
-
+    //****************************************************拍照選單***************************************
 
     //檢查裝置有沒有應用程式可以執行拍照動作，如果有則數量會大於0
     public boolean isIntentAvailable(Context context, Intent intent){
@@ -302,11 +229,11 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
     }
 
 
-//書本12-25頁
+    //書本12-25頁
     private void takePicture() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-//指定存檔路徑
+    //指定存檔路徑
         file = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         file = new File(file, "picture.jpg");
 
@@ -344,6 +271,7 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
                         bitmap2 = downSize(bitmap2, 512);
 
                         ivTakePicture.setImageBitmap(bitmap2);
+
                         ByteArrayOutputStream out2 = new ByteArrayOutputStream();
                         bitmap2.compress(Bitmap.CompressFormat.JPEG, 100, out2);
                         image = out2.toByteArray();
@@ -358,7 +286,6 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
 
 
     private boolean isSignUpValid(String name, String email, String password, byte[] image) {
-        boolean answer = false;
 
         if(networkConnected(this)){
             String url = Common.URL + "SignUp_LogIn_Android";
@@ -372,18 +299,16 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
             } catch (Exception e){
                 Log.e(TAG, e.toString());
             }
-            answer = memID != null;
+            return memID != null;
         }else{
             Toast.makeText(SignUpActivity.this,R.string.msg_NoNetwork,Toast.LENGTH_SHORT).show();
         }
 
-        return answer;
+        return false;
     }
 
 //檢查Email是否重複
     private boolean isEmailUsable(String email) {
-        boolean answer = false;
-
         if(networkConnected(this)){
             String url = Common.URL + "SignUp_LogIn_Android";
 
@@ -397,7 +322,8 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
                 Gson gson = new Gson();
                 String ans = gson.fromJson(jsonIn, String.class);
 
-                answer = !ans.equals("repeat");
+                return  !ans.equals("repeat");
+
             } catch (Exception e){
                 Log.e(TAG, e.toString());
             }
@@ -405,34 +331,101 @@ public class SignUpActivity extends AppCompatActivity implements PopupMenu.OnMen
         }else{
             Toast.makeText(SignUpActivity.this,R.string.msg_NoNetwork,Toast.LENGTH_SHORT).show();
         }
-        return answer;
-        }
-    private void checkPermission2() {
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    }, 2);
-        }
+        return false;
     }
-    //檢查若尚未授權, 則向使用者要求[拍照]權限
+
+    //檢查若尚未授權, 則向使用者要求存取權限、拍照權限
     private void checkPermission() {
 
         if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
 
             ActivityCompat.requestPermissions(this,
                     new String[]{
-                            Manifest.permission.CAMERA
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA
                     }, 1);
-
-            checkPermission2();
         }
-//        }else{
-//            //已有權限，執行儲存程式
-//
-//        }
+    }
 
+    //*************************************Task & 連線開始*****************************************
+    private class SignUpTask extends AsyncTask<Object, Integer, String>{
+        private final static String TAG = "SignUpTask";
+        private String url, signUp, name, email, password;
+        private byte[] image;
+
+
+        private SignUpTask(String url, String signUp,String name, String email, String password, byte[] image) {
+            this.url = url;
+            this.signUp = signUp;
+            this.name = name;
+            this.email = email;
+            this.password = password;
+            this.image = image;
+        }
+
+        @Override
+        protected String doInBackground(Object[] params) {
+            String jsonIn;
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("action", signUp);
+            jsonObject.addProperty("name", name);
+            jsonObject.addProperty("email", email);
+            jsonObject.addProperty("password", password);
+            jsonObject.addProperty("imageBase64", Base64.encodeToString(image, Base64.DEFAULT));
+            try {
+                jsonIn = getRemoteData(url, jsonObject.toString()); //jsonOut & jsonIn
+            } catch (IOException e) {
+                Log.e(TAG, e.toString());
+                return null;
+            }
+            return jsonIn;
+        }
+    }
+
+    private String getRemoteData(String url, String jsonOut) throws IOException {
+        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+        con.setDoInput(true);
+        con.setDoOutput(true);
+        con.setUseCaches(false);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("charset", "UTF-8");
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
+        bw.write(jsonOut);
+        Log.d(TAG, "jsonOut:\n   " + jsonOut);
+        bw.close();
+
+        int responseCode = con.getResponseCode();
+        StringBuilder jsonIn = new StringBuilder();
+        if(responseCode == 200){
+            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String line;
+            while((line = br.readLine()) != null){
+                jsonIn.append(line);
+            }
+        }else{
+            Log.d(TAG, "response code:\n   " + responseCode);
+        }
+        con.disconnect();
+        Log.d(TAG, "jsonIn:\n   " + jsonIn);
+        return jsonIn.toString();
+    }
+//*************************************Task & 連線結束*****************************************
+
+    void hideKeyPad() {
+//        etPwrContent.clearFocus();
+        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(this
+                                .getCurrentFocus().getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG,"************************"+getTaskId()+"我被消滅了***************************");
     }
 }

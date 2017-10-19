@@ -3,7 +3,7 @@
     <item name="visible" type="id" />
     <item name="masked" type="id" />
     <!-- 卡片尺寸設定 -->
-    <dimen name="textSize">16dp</dimen>
+    <dimen name="textSize">16sp</dimen>
     <dimen name="cardHeight">200dp</dimen>
     <dimen name="imageHeight">160dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>

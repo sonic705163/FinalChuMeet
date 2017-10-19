@@ -45,6 +45,7 @@ import iii.com.chumeet.QRCodeEncoder;
 import iii.com.chumeet.R;
 import iii.com.chumeet.Task.GetImageTask;
 import iii.com.chumeet.Task.MyTask;
+import iii.com.chumeet.Tools;
 import iii.com.chumeet.VO.ActMemVO;
 import iii.com.chumeet.VO.ActVO;
 import iii.com.chumeet.VO.Mem_ActMemVO;
@@ -54,17 +55,23 @@ import static iii.com.chumeet.Common.networkConnected;
 import static iii.com.chumeet.Common.showToast;
 
 
+
+
 public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String TAG = "ActDetailActivity";
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView actImg;
-    private TextView actName,actCont,actDate,actHost,actLoc;
+    private TextView actCont,actDate,actHost,actLoc;
     private Button btnJoin;
     private GoogleMap map;
     private ActVO actVO;
     private Bundle bundle;
+    private ActMemVO actMemVO = null;
     private Integer status = null;
+    private Integer qrStatus = null;
     private Toolbar toolbar;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +82,6 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_QRCode);
         actImg = (ImageView) findViewById(R.id.ivActDetImg);
-        actName = (TextView) findViewById(R.id.tvActDetName);
         actCont = (TextView) findViewById(R.id.tvClubDetContent);
         actDate = (TextView) findViewById(R.id.tvActDetDate);
         actLoc = (TextView) findViewById(R.id.tvActDetLoc);
@@ -87,7 +93,7 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(true);
-                showResults();
+                onStart();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -99,14 +105,13 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
             public void onClick(View v) {
                 String url = Common.URL + "ActServletAndroid";
                 String jsonIn = null;
-                ActMemVO actMemVO = null;
 
                 SharedPreferences pref = getSharedPreferences(Common.PREF_FILE, MODE_PRIVATE);
                 Integer memID = pref.getInt("memID", 0);
 
                 try {
                     JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("action", "getActMem");          //一直點會不會有問題?
+                    jsonObject.addProperty("action", "getActMem");
                     jsonObject.addProperty("id", actVO.getActID());
                     jsonObject.addProperty("memId", memID);
                     String jsonOut = jsonObject.toString();
@@ -139,7 +144,7 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                     if (jsonIn != null) {
                         btnJoin.setText("退出活動");
-                        actMemFmStart();
+                        onStart();
                     } else {
                         Log.d(TAG, "加入失敗");
                     }
@@ -164,7 +169,7 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
                             }
                             if (jsonIn != null) {
                                 btnJoin.setText("加入活動");
-                                actMemFmStart();
+                                onStart();
                             } else {
                                 Log.d(TAG, "退出失敗");
                             }
@@ -195,7 +200,7 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
 
                             if (jsonIn != null) {
                                 btnJoin.setText("退出活動");
-                                actMemFmStart();
+                                onStart();
                             } else {
                                 Log.d(TAG, "加入失敗");
                             }
@@ -226,7 +231,6 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
         toolbar.inflateMenu(R.menu.toolbar_menu_detail);
         setSupportActionBar(toolbar);
 
-
         showResults();
 
     }
@@ -243,8 +247,6 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
 
         bundle = this.getIntent().getExtras();
         actVO =  (ActVO) bundle.getSerializable("actVO");
-
-        ActMemVO actMemVO ;
 
 
         if (networkConnected(this)) {
@@ -263,12 +265,19 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
                 actMemVO = gson.fromJson(jsonIn, ActMemVO.class);
 
                 if(actMemVO != null){
-                    status = actMemVO.getActMemStatus();        //有資料時取actMemStatus//
+                    status = actMemVO.getActMemStatus();
+                    qrStatus = actMemVO.getQrStatus();    //有資料時取actMemStatus//
+
+
+
                     switch (status){                            //1=hoder, 2=joined member 3=invited 4=banned 5=tracking 6=leave
                         case 1:
-                            btnJoin.setText("解散活動");
+                            btnJoin.setVisibility(View.GONE);
                             break;
                         case 2:
+                            if(qrStatus==1){
+                                btnJoin.setVisibility(View.GONE);
+                            }
                             btnJoin.setText("退出活動");
                             break;
                         case 3:
@@ -291,6 +300,7 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
                 Log.e(TAG, e.toString());
             }
             actMemFmStart();
+            actMemFmQR();
         }else{
             showToast(this, R.string.msg_NoNetwork);
         }
@@ -307,7 +317,15 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
         transaction.replace(R.id.fmActDetail, fragment).commit();
     }
 
+    private void actMemFmQR(){
 
+        ActMemQRFragment fragmentQR = new ActMemQRFragment();
+
+        fragmentQR.setArguments(bundle);
+
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.fmActQRCode, fragmentQR).commit();
+    }
 
 
 
@@ -327,18 +345,18 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
                 Gson gson = new Gson();
                 Mem_ActMemVO mem_actMemVO = gson.fromJson(jsonIn, Mem_ActMemVO.class);
 
-                int imageSize = getResources().getDisplayMetrics().widthPixels / 4;
+                int imageSize = getResources().getDisplayMetrics().widthPixels / 2;
 
                 new GetImageTask(url, actVO.getActID(), imageSize, actImg).execute().get();
 
-                actName.setText(actVO.getActName());
+
                 actCont.setText(actVO.getActContent());
                 actLoc.setText(actVO.getActAdr());
                 actHost.setText(mem_actMemVO.getMemName());
-                String startDate = actVO.getActStartDate().toString();
-                String endDate = actVO.getActEndDate().toString();
+                String startDate = Tools.toFormat(actVO.getActStartDate());
+                String endDate = Tools.toFormat(actVO.getActEndDate());
 
-                actDate.setText("Start:  " + startDate + "\nEnd:    " + endDate);
+                actDate.setText("開始時間:" + startDate + "\n結束時間:" + endDate);
 
             }catch (Exception e){
                 Log.e(TAG, e.toString());
@@ -414,9 +432,12 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
         }else if (status==1){
             getMenuInflater().inflate(R.menu.toolbar_menu_detail_host, menu);
         }else if (status==2){
-            getMenuInflater().inflate(R.menu.toolbar_menu_detail, menu);
+            if (qrStatus==0){
+                getMenuInflater().inflate(R.menu.toolbar_menu_detail, menu);
+            }
+        }else if (status==6) {
+            return super.onCreateOptionsMenu(menu);
         }
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -436,7 +457,7 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
                 Intent intent = new Intent(this, ActUpdateActivity.class);
                 intent.putExtras(bundle);
                 startActivity(intent);
-                finish();
+
                 break;
 
             default:
@@ -467,11 +488,42 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
         super.onActivityResult(requestCode, resultCode, data);
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (intentResult != null && intentResult.getContents() != null) {
-            String s = intentResult.getContents();
-            Toast.makeText(this, "簽到成功", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Result Not Found", Toast.LENGTH_SHORT).show();
+
+            SharedPreferences pref = getSharedPreferences(Common.PREF_FILE, MODE_PRIVATE);
+            Integer memID = pref.getInt("memID", 0);
+
+            String actIdStr = intentResult.getContents();
+            int actID = Integer.valueOf(actIdStr);
+
+            if (networkConnected(this)) {
+                String url = Common.URL + "ActServletAndroid";
+
+                try{
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("action", "QRCode");
+                    jsonObject.addProperty("actID", actID);
+                    jsonObject.addProperty("memID", memID);
+                    jsonObject.addProperty("QRStatus", 1);
+                    String jsonOut = jsonObject.toString();
+                    String jsonIn = new MyTask(url,jsonOut).execute().get();
+
+                    Log.d(TAG,jsonIn);
+
+                    Toast.makeText(this, "簽到成功", Toast.LENGTH_SHORT).show();
+                    onStart();
+
+                }catch (Exception e){
+                    Log.e(TAG, e.toString());
+                }
+
+            }else{
+                showToast(this, R.string.msg_NoNetwork);
+            }
+
         }
+//       else {
+//            Toast.makeText(this, "Result Not Found", Toast.LENGTH_SHORT).show();
+//        }
     }
 
     public void onGenerateQrCodeClick() {
@@ -509,16 +561,26 @@ public class ActDetailActivity extends AppCompatActivity implements OnMapReadyCa
             Log.e(TAG, e.toString());
         }
     }
-    //監聽返回鍵點擊事件
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG,"************************"+getTaskId()+"我被消滅了***************************");
+    }
+
+
+//監聽返回鍵點擊事件
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event){
         if(keyCode == KeyEvent.KEYCODE_BACK){
 
             Intent intent = new Intent(this, HomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-
         }
         return true;
     }
+
 }

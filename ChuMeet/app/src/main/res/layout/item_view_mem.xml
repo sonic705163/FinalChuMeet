@@ -2,8 +2,8 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardView"
-    android:layout_width="160dp"
-    android:layout_height="@dimen/cardHeight"
+    android:layout_width="140dp"
+    android:layout_height="160dp"
 
     android:layout_margin="10dp"
     card_view:cardCornerRadius="10dp">
@@ -18,7 +18,7 @@
             android:orientation="vertical">
 
             <ImageView
-                android:id="@+id/ivActImg"
+                android:id="@+id/ivMemImg"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/imageHeight"
                 android:scaleType="centerCrop" />
@@ -34,29 +34,36 @@
 
 
             <TextView
-                android:id="@+id/tvActName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/holo_orange_dark"
-                android:lines="1"
-                android:paddingLeft="6dp"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/textSize"
-                tools:text="Name" />
-
-            <TextView
-                android:id="@+id/tvActDate"
+                android:id="@+id/tvMemName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/holo_orange_dark"
                 android:lines="2"
-                android:paddingLeft="6dp"
-                android:textColor="@android:color/background_light"
+                android:paddingEnd="0dp"
+                android:paddingStart="8dp"
+                android:textColor="@android:color/white"
                 android:textSize="@dimen/textSize"
-                tools:text="Date" />
+                android:textStyle="bold"
+                tools:text="Name" />
 
         </LinearLayout>
+
     </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingEnd="0dp"
+        android:paddingStart="100dp"
+        android:paddingTop="100dp">
+
+        <ImageView
+            android:id="@+id/ivHostMark"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:visibility="invisible"
+            card_view:srcCompat="@drawable/logo" />
+    </FrameLayout>
 
 </android.support.v7.widget.CardView>
 

@@ -1,14 +1,15 @@
 package iii.com.chumeet.home;
 
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +18,7 @@ import iii.com.chumeet.R;
 import iii.com.chumeet.login.MainActivity;
 
 public class HomeActivity extends AppCompatActivity{
+    private static final String TAG = "HomeActivity";
     private Toolbar toolbar;
 
 
@@ -29,7 +31,7 @@ public class HomeActivity extends AppCompatActivity{
         public boolean onNavigationItemSelected(@NonNull MenuItem item){
 
 //Fragment創造與交換
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             switch (item.getItemId()){
                 case R.id.navFind:
@@ -37,9 +39,6 @@ public class HomeActivity extends AppCompatActivity{
                     return true;
                 case R.id.navGoing:
                     transaction.replace(R.id.content, new GoingFragment()).commit();
-                    return true;
-                case R.id.navMessage:
-                    transaction.replace(R.id.content, new MessageFragment()).commit();
                     return true;
                 case R.id.navProfile:
                     transaction.replace(R.id.content, new ProfileFragment()).commit();
@@ -65,7 +64,7 @@ public class HomeActivity extends AppCompatActivity{
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
 //Fragment第一次的創造與交換
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.content, new FindFragment()).commit();
     }
 
@@ -114,5 +113,13 @@ public class HomeActivity extends AppCompatActivity{
                     }).show();
         }
         return true;
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG,"************************"+getTaskId()+"我被消滅了***************************");
     }
 }

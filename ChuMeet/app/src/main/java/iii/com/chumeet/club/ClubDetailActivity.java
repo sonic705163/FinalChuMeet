@@ -56,7 +56,7 @@ public class ClubDetailActivity extends AppCompatActivity {
         String url = Common.URL + "ClubServletAndroid";
         clubVO = (ClubVO) getIntent().getSerializableExtra("clubVO");
 
-        int imageSize = getResources().getDisplayMetrics().widthPixels / 4;
+        int imageSize = getResources().getDisplayMetrics().widthPixels / 2;
 
         int id = clubVO.getClubId();
         try {

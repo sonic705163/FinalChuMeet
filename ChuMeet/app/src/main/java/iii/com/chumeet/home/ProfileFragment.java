@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -41,7 +41,7 @@ public class ProfileFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private Toolbar toolbar ;
     private ImageView memImg;
-    private TextView memName;
+    private TextView memName,memLv,memExp,memInfo;
     private MemVO memVO;
 
 
@@ -57,8 +57,11 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        memImg = (ImageView) view.findViewById(R.id.ivProfileImg);
-        memName = (TextView) view.findViewById(R.id.tvProfileName);
+        memImg = (ImageView) view.findViewById(R.id.ivMemImg_profile);
+        memName = (TextView) view.findViewById(R.id.tvMemName_profile);
+        memExp = (TextView) view.findViewById(R.id.tvMemExp_profile);
+        memInfo = (TextView) view.findViewById(R.id.tvMemInfo);
+        memLv = (TextView) view.findViewById(R.id.tvMemLv_profile);
 
         swipeRefreshLayout =
                 (SwipeRefreshLayout) view.findViewById(R.id.profileRefresh);
@@ -100,6 +103,7 @@ public class ProfileFragment extends Fragment {
                         pref.edit().putBoolean("login", false).apply();
                         Intent intent = new Intent(getActivity(), MainActivity.class);
                         startActivity(intent);
+                        getActivity().finish();
                         break;
                 }
                 return true;
@@ -123,7 +127,7 @@ public class ProfileFragment extends Fragment {
 
     public void showResults(){
         String url = Common.URL + "MemServletAndroid";
-        int imageSize = getResources().getDisplayMetrics().widthPixels / 4;
+        int imageSize = getResources().getDisplayMetrics().widthPixels / 2;
 
         if(networkConnected(getActivity())){
 
@@ -131,7 +135,7 @@ public class ProfileFragment extends Fragment {
             Integer memID = pref.getInt("memID", 0);
 
 
-            MemVO memVO = null;
+            memVO = null;
 
             try {
                 JsonObject jsonObject = new JsonObject();
@@ -152,6 +156,9 @@ public class ProfileFragment extends Fragment {
                 showToast(getActivity(), R.string.msg_NoClubsFound);
             }else{
                 memName.setText(memVO.getMemName());
+                memLv.setText(memVO.getMemLv().toString());
+                memExp.setText(memVO.getMemExp().toString());
+                memInfo.setText(memVO.getMemInt());
             }
 
             try{
